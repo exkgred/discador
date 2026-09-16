@@ -1,5 +1,5 @@
 {
-  "installCommand": "if [ -d frontend ]; then cd frontend && npm ci; else npm ci; fi",
+  "installCommand": "if [ -d frontend ]; then cd frontend && npm install --no-audit --no-fund; else npm install --no-audit --no-fund; fi",
   "buildCommand": "if [ -d frontend ]; then cd frontend && npx vite build && rm -rf ../dist && cp -r dist ../dist; else npx vite build; fi",
   "outputDirectory": "dist",
   "framework": "vite",
