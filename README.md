@@ -51,7 +51,7 @@ O frontend sobe sozinho, sem Nest, Postgres, Redis ou Zenvia. Com `VITE_DEMO=tru
 
 Login da demo: `agent@discador.dev` / `password123` (já vem preenchido).
 
-Demo: [https://discador.vercel.app/](https://discador.vercel.app/)
+Demo: [https://discador-amber.vercel.app/](https://discador-amber.vercel.app/)
 
 Código: [https://github.com/exkgred/discador](https://github.com/exkgred/discador)
 
