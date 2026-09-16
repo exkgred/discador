@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  SUPERVISOR
+  AGENT
+}
+
+enum DialMode {
+  MANUAL
+  POWER
+}
+
+enum CampaignLeadStatus {
+  PENDING
+  DIALING
+  IN_CALL
+  WRAP_UP
+  DONE
+  NO_ANSWER
+  CALLBACK
+  DNC
+}
+
+enum CallStatus {
+  CREATED
+  RINGING
+  IN_CALL
+  FINALIZED
+  FAILED
+}
+
+enum CallDisposition {
+  ANSWERED
+  NO_ANSWER
+  VOICEMAIL
+  BUSY
+  CALLBACK
+  DNC
+  OTHER
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  role          UserRole       @default(AGENT)
+  ramalId       String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+  assignedLeads CampaignLead[] @relation("AssignedAgent")
+  calls         Call[]
+  callbacks     Callback[]
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+model Lead {
+  id           String          @id @default(uuid())
+  name         String
+  phone        String
+  tags         String[]        @default([])
+  dncBlocked   Boolean         @default(false)
+  notes        String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  campaigns    CampaignLead[]
+  calls        Call[]
+  callbacks    Callback[]
+
+  @@unique([phone])
+  @@index([phone])
+}
+
+model Campaign {
+  id          String          @id @default(uuid())
+  name        String
+  script      String
+  dialMode    DialMode        @default(MANUAL)
+  gravarAudio Boolean         @default(true)
+  windowStart String          @default("08:00")
+  windowEnd   String          @default("18:00")
+  timeZone    String          @default("America/Sao_Paulo")
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  leads       CampaignLead[]
+  calls       Call[]
+}
+
+model CampaignLead {
+  id          String              @id @default(uuid())
+  campaignId  String
+  leadId      String
+  position    Int
+  status      CampaignLeadStatus  @default(PENDING)
+  agentId     String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  campaign    Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  lead        Lead                @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  agent       User?               @relation("AssignedAgent", fields: [agentId], references: [id])
+  calls       Call[]
+  callbacks   Callback[]
+
+  @@unique([campaignId, leadId])
+  @@index([campaignId, status, position])
+}
+
+model Call {
+  id                 String         @id @default(uuid())
+  zenviaChamadaId    String         @unique
+  campaignId         String
+  campaignLeadId     String
+  leadId             String
+  agentId            String
+  status             CallStatus     @default(CREATED)
+  recordingUrl       String?
+  durationSeconds    Int?
+  spokenSeconds      Int?
+  billedSeconds      Int?
+  price              Decimal?       @db.Decimal(10, 4)
+  disconnectReason   String?
+  disposition        CallDisposition?
+  wrapUpNotes        String?
+  webhookProcessedAt DateTime?
+  startedAt          DateTime?
+  endedAt            DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  campaign           Campaign       @relation(fields: [campaignId], references: [id])
+  campaignLead       CampaignLead   @relation(fields: [campaignLeadId], references: [id])
+  lead               Lead           @relation(fields: [leadId], references: [id])
+  agent              User           @relation(fields: [agentId], references: [id])
+  callback           Callback?
+
+  @@index([agentId, createdAt])
+  @@index([zenviaChamadaId])
+}
+
+model DoNotCall {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  reason    String?
+  createdAt DateTime @default(now())
+}
+
+model Callback {
+  id             String       @id @default(uuid())
+  leadId         String
+  campaignLeadId String
+  agentId        String
+  callId         String?      @unique
+  scheduledAt    DateTime
+  notes          String?
+  completed      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  lead           Lead         @relation(fields: [leadId], references: [id])
+  campaignLead   CampaignLead @relation(fields: [campaignLeadId], references: [id])
+  agent          User         @relation(fields: [agentId], references: [id])
+  call           Call?        @relation(fields: [callId], references: [id])
+
+  @@index([scheduledAt, completed])
+}

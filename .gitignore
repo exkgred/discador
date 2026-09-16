@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.env
+.env.local
+*.log
+.DS_Store
+frontend/dist
+backend/dist
+backend/coverage
+!frontend/.env.production
+
