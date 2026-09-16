@@ -36,22 +36,22 @@ export default function CampaignsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Campanhas</h1>
-      <form onSubmit={create} className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-        <input className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" value={name} onChange={(e) => setName(e.target.value)} />
-        <textarea className="h-24 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" value={script} onChange={(e) => setScript(e.target.value)} />
-        <select className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" value={dialMode} onChange={(e) => setDialMode(e.target.value as 'MANUAL' | 'POWER')}>
+      <h1 className="text-2xl font-semibold text-slate-900">Campanhas</h1>
+      <form onSubmit={create} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <input className="w-full rounded-lg border border-slate-300 px-3 py-2" value={name} onChange={(e) => setName(e.target.value)} />
+        <textarea className="h-24 w-full rounded-lg border border-slate-300 px-3 py-2" value={script} onChange={(e) => setScript(e.target.value)} />
+        <select className="rounded-lg border border-slate-300 bg-white px-3 py-2" value={dialMode} onChange={(e) => setDialMode(e.target.value as 'MANUAL' | 'POWER')}>
           <option value="MANUAL">Manual</option>
           <option value="POWER">Power dialer</option>
         </select>
-        <button className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950">Criar</button>
+        <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Criar</button>
       </form>
 
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-2 font-medium">Enfileirar leads</h2>
         <div className="mb-3 flex flex-wrap gap-2">
           {leads.map((lead) => (
-            <label key={lead.id} className="flex items-center gap-2 rounded bg-slate-950 px-2 py-1 text-sm">
+            <label key={lead.id} className="flex items-center gap-2 rounded bg-slate-50 px-2 py-1 text-sm">
               <input
                 type="checkbox"
                 checked={selected.includes(lead.id)}
@@ -66,9 +66,9 @@ export default function CampaignsPage() {
           ))}
         </div>
         {campaigns.map((campaign) => (
-          <div key={campaign.id} className="mb-2 flex flex-col gap-2 rounded-lg bg-slate-950 px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <div key={campaign.id} className="mb-2 flex flex-col gap-2 rounded-lg bg-slate-50 px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
             <span>{campaign.name} · {campaign.dialMode} · {campaign.active ? 'ativa' : 'off'}</span>
-            <button type="button" className="rounded-lg bg-slate-800 px-3 py-2 text-emerald-300" onClick={() => void enqueue(campaign.id)}>
+            <button type="button" className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700" onClick={() => void enqueue(campaign.id)}>
               Adicionar selecionados
             </button>
           </div>

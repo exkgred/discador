@@ -28,40 +28,43 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-slate-950 px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-slate-900 px-4">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-8"
+        className="w-full max-w-sm space-y-4 rounded-xl bg-white p-8 shadow-2xl"
       >
-        <div className="flex items-center gap-2 text-emerald-400">
-          <Phone /> <h1 className="text-xl font-semibold">Discador Zenvia</h1>
+        <div className="text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">
+            <Phone size={22} />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-800">Discador Zenvia</h1>
+          <p className="text-sm text-slate-500">Entre para discar leads no navegador.</p>
         </div>
-        <p className="text-sm text-slate-400">Entre para discar leads no navegador.</p>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-slate-700">
           E-mail
           <input
-            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-slate-700">
           Senha
           <input
             type="password"
-            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        {error && <p className="text-sm text-rose-400">{error}</p>}
+        {error && <p className="text-sm text-red-500">{error}</p>}
         <button
           type="submit"
-          className="w-full rounded-lg bg-emerald-500 py-2 font-medium text-slate-950 hover:bg-emerald-400"
+          className="w-full rounded-lg bg-blue-600 py-2.5 font-medium text-white hover:bg-blue-700"
         >
           Entrar
         </button>
-        <p className="text-xs text-slate-500">agent@discador.dev / password123</p>
+        <p className="text-center text-xs text-slate-400">agent@discador.dev / password123</p>
       </form>
     </div>
   )

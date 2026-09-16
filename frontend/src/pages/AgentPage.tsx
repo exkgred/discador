@@ -306,11 +306,11 @@ export default function AgentPage() {
         <iframe title="webphone" src={webphoneUrl} className="hidden" allow="microphone; autoplay" />
       )}
 
-      <section className="overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-b from-slate-900 to-slate-950">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between px-4 pt-4 sm:px-6">
           <div>
             <p className="text-xs uppercase tracking-wide text-slate-500">Mesa do agente</p>
-            <h1 className="text-xl font-semibold sm:text-2xl">Ligação</h1>
+            <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">Ligação</h1>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -321,7 +321,7 @@ export default function AgentPage() {
                 setCallAudioMuted(next)
                 void unlockCallAudio()
               }}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-800 text-slate-200"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-600"
               title={muted ? 'Ativar som' : 'Silenciar'}
             >
               {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -333,10 +333,10 @@ export default function AgentPage() {
         </div>
 
         <div className="px-4 pb-6 pt-6 sm:px-6">
-          <label className="block text-sm text-slate-400">
+          <label className="block text-sm font-medium text-slate-700">
             Campanha
             <select
-              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-3 text-base text-slate-100 disabled:opacity-60"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-base text-slate-900 disabled:bg-slate-50 disabled:opacity-60"
               value={campaignId}
               onChange={(e) => setCampaignId(e.target.value)}
               disabled={status !== 'idle'}
@@ -353,37 +353,37 @@ export default function AgentPage() {
             <div className="relative mb-5">
               {status === 'ringing' && (
                 <>
-                  <span className="ring-orbit absolute inset-0 rounded-full border-2 border-emerald-400/50" />
-                  <span className="ring-orbit absolute inset-0 rounded-full border-2 border-emerald-400/30 [animation-delay:400ms]" />
+                  <span className="ring-orbit absolute inset-0 rounded-full border-2 border-blue-400/60" />
+                  <span className="ring-orbit absolute inset-0 rounded-full border-2 border-blue-300/40 [animation-delay:400ms]" />
                 </>
               )}
               <div
-                className={`relative flex h-28 w-28 items-center justify-center rounded-full bg-slate-800 text-3xl font-semibold text-emerald-300 sm:h-32 sm:w-32 ${
+                className={`relative flex h-28 w-28 items-center justify-center rounded-full bg-blue-50 text-3xl font-semibold text-blue-700 sm:h-32 sm:w-32 ${
                   status === 'ringing' ? 'ringing-avatar' : ''
-                } ${status === 'in_call' ? 'ring-4 ring-emerald-500/40' : ''}`}
+                } ${status === 'in_call' ? 'ring-4 ring-blue-200' : ''}`}
               >
                 {lead ? initials : <PhoneCall size={36} />}
               </div>
             </div>
 
-            <p className="text-2xl font-semibold sm:text-3xl">
+            <p className="text-2xl font-semibold text-slate-900 sm:text-3xl">
               {lead?.name ?? 'Ninguém na linha'}
             </p>
-            <p className="mt-1 font-mono text-sm text-slate-400 sm:text-base">
+            <p className="mt-1 font-mono text-sm text-slate-500 sm:text-base">
               {lead?.phone ?? 'Escolha uma campanha e disque'}
             </p>
-            <p className="mt-3 font-mono text-3xl tabular-nums text-emerald-300">
+            <p className="mt-3 font-mono text-3xl tabular-nums text-blue-700">
               {formatDuration(elapsed)}
             </p>
             {current && (
-              <p className="mt-1 text-xs text-slate-500">chamada {current.call.zenviaChamadaId}</p>
+              <p className="mt-1 text-xs text-slate-400">chamada {current.call.zenviaChamadaId}</p>
             )}
           </div>
 
-          {flash && <p className="mt-4 text-center text-sm text-amber-300">{flash}</p>}
+          {flash && <p className="mt-4 text-center text-sm text-amber-700">{flash}</p>}
 
-          <div className="mt-6 rounded-2xl bg-slate-900/80 p-4 text-sm leading-relaxed text-slate-300">
-            <p className="mb-1 text-xs uppercase tracking-wide text-slate-500">Script</p>
+          <div className="mt-6 rounded-2xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-600">
+            <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Script</p>
             {campaign?.script ?? 'Selecione uma campanha.'}
           </div>
 
@@ -393,7 +393,7 @@ export default function AgentPage() {
                 <button
                   type="button"
                   onClick={() => void ready()}
-                  className="h-12 rounded-2xl bg-slate-800 px-4 text-sm font-medium hover:bg-slate-700"
+                  className="h-12 rounded-xl bg-slate-100 px-4 text-sm font-medium text-slate-700 hover:bg-slate-200"
                 >
                   Ficar disponível
                 </button>
@@ -401,7 +401,7 @@ export default function AgentPage() {
                   type="button"
                   onClick={() => void dial()}
                   disabled={pending.length === 0}
-                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 text-base font-semibold text-slate-950 disabled:opacity-40"
+                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-base font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
                 >
                   <PhoneCall size={18} /> Discar próximo
                 </button>
@@ -412,7 +412,7 @@ export default function AgentPage() {
                 <button
                   type="button"
                   onClick={() => void hangup()}
-                  className="hidden h-16 w-full items-center justify-center gap-2 rounded-2xl bg-rose-600 text-base font-semibold text-white shadow-lg shadow-rose-900/40 sm:inline-flex"
+                  className="hidden h-16 w-full items-center justify-center gap-2 rounded-xl bg-red-600 text-base font-semibold text-white hover:bg-red-700 sm:inline-flex"
                 >
                   <PhoneOff size={22} /> Encerrar ligação
                 </button>
@@ -424,19 +424,19 @@ export default function AgentPage() {
       </section>
 
       <aside className="space-y-4 pb-4">
-        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 sm:p-6">
-          <h2 className="mb-3 font-medium">Fila ({pending.length} pendentes)</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+          <h2 className="mb-3 font-medium text-slate-900">Fila ({pending.length} pendentes)</h2>
           <ul className="max-h-72 space-y-2 overflow-auto text-sm">
             {queue.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-950 px-3 py-3">
+              <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3">
                 <div className="min-w-0">
-                  <p className="truncate">{item.lead?.name}</p>
+                  <p className="truncate text-slate-800">{item.lead?.name}</p>
                   <p className="truncate text-xs text-slate-500">{item.lead?.phone} · {item.status}</p>
                 </div>
                 {item.status === 'PENDING' && status === 'idle' && (
                   <button
                     type="button"
-                    className="shrink-0 rounded-lg bg-slate-800 px-3 py-2 text-emerald-300"
+                    className="shrink-0 rounded-lg bg-blue-50 px-3 py-2 text-blue-700"
                     onClick={() => void dial(item.id)}
                   >
                     Discar
@@ -456,7 +456,7 @@ export default function AgentPage() {
           <button
             type="button"
             onClick={() => void hangup()}
-            className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-rose-600 text-base font-semibold text-white shadow-xl shadow-rose-950/50"
+            className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-red-600 text-base font-semibold text-white shadow-lg"
           >
             <PhoneOff size={22} /> Encerrar ligação
           </button>
@@ -464,12 +464,12 @@ export default function AgentPage() {
       )}
 
       {status === 'wrap_up' && current && (
-        <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-4 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:bg-black/70 sm:p-4">
-          <div className="mx-auto w-full max-w-md space-y-4 rounded-t-3xl border border-slate-700 bg-slate-900 p-5 shadow-2xl sm:rounded-3xl">
+        <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-4 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:bg-slate-900/40 sm:p-4">
+          <div className="mx-auto w-full max-w-md space-y-4 rounded-t-3xl border border-slate-200 bg-white p-5 shadow-2xl sm:rounded-2xl">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold">Ligação encerrada</h2>
-                <p className="text-sm text-slate-400">
+                <h2 className="text-lg font-semibold text-slate-900">Ligação encerrada</h2>
+                <p className="text-sm text-slate-500">
                   {lead?.name} · {formatDuration(current.call.durationSeconds ?? elapsed)}
                 </p>
               </div>
@@ -486,8 +486,8 @@ export default function AgentPage() {
                   onClick={() => setDisposition(item.id)}
                   className={`shrink-0 rounded-full px-3 py-2 text-sm ${
                     disposition === item.id
-                      ? 'bg-emerald-500 font-medium text-slate-950'
-                      : 'bg-slate-800 text-slate-300'
+                      ? 'bg-blue-600 font-medium text-white'
+                      : 'bg-slate-100 text-slate-600'
                   }`}
                 >
                   {item.label}
@@ -497,13 +497,13 @@ export default function AgentPage() {
             {disposition === 'CALLBACK' && (
               <input
                 type="datetime-local"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-3"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3"
                 value={callbackAt}
                 onChange={(e) => setCallbackAt(e.target.value)}
               />
             )}
             <textarea
-              className="h-20 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-base"
+              className="h-20 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-base"
               placeholder="Observações (opcional)"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -514,14 +514,14 @@ export default function AgentPage() {
                 <button
                   type="button"
                   onClick={() => void submitWrapUp(false)}
-                  className="h-12 rounded-2xl bg-slate-800 font-medium"
+                  className="h-12 rounded-xl bg-slate-100 font-medium text-slate-700"
                 >
                   Parar
                 </button>
                 <button
                   type="button"
                   onClick={() => void submitWrapUp(true)}
-                  className="h-12 rounded-2xl bg-emerald-500 font-semibold text-slate-950"
+                  className="h-12 rounded-xl bg-blue-600 font-semibold text-white hover:bg-blue-700"
                 >
                   Ligar agora
                 </button>
@@ -530,7 +530,7 @@ export default function AgentPage() {
               <button
                 type="button"
                 onClick={() => void submitWrapUp(false)}
-                className="h-12 w-full rounded-2xl bg-emerald-500 font-semibold text-slate-950"
+                className="h-12 w-full rounded-xl bg-blue-600 font-semibold text-white hover:bg-blue-700"
               >
                 Salvar e continuar
               </button>
@@ -554,13 +554,13 @@ function CountdownBadge({ seconds, total }: { seconds: number; total: number }) 
   return (
     <div className="relative h-12 w-12 shrink-0">
       <svg viewBox="0 0 40 40" className="countdown-ring h-12 w-12">
-        <circle cx="20" cy="20" r={radius} fill="none" stroke="#1e293b" strokeWidth="4" />
+        <circle cx="20" cy="20" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="4" />
         <circle
           cx="20"
           cy="20"
           r={radius}
           fill="none"
-          stroke="#34d399"
+          stroke="#2563eb"
           strokeWidth="4"
           strokeDasharray={circ}
           strokeDashoffset={circ * (1 - progress)}
@@ -575,10 +575,10 @@ function CountdownBadge({ seconds, total }: { seconds: number; total: number }) 
 }
 
 function statusTone(status: AgentStatus): string {
-  if (status === 'ringing') return 'bg-amber-500/15 text-amber-300'
-  if (status === 'in_call') return 'bg-emerald-500/15 text-emerald-300'
-  if (status === 'wrap_up') return 'bg-slate-800 text-slate-300'
-  return 'bg-slate-800 text-slate-400'
+  if (status === 'ringing') return 'bg-amber-100 text-amber-700'
+  if (status === 'in_call') return 'bg-blue-100 text-blue-700'
+  if (status === 'wrap_up') return 'bg-slate-100 text-slate-600'
+  return 'bg-slate-100 text-slate-500'
 }
 
 function formatDuration(total: number): string {

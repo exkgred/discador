@@ -23,13 +23,13 @@ textarea {
 
 @keyframes ring-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgb(16 185 129 / 0.45);
+    box-shadow: 0 0 0 0 rgb(37 99 235 / 0.4);
   }
   70% {
-    box-shadow: 0 0 0 22px rgb(16 185 129 / 0);
+    box-shadow: 0 0 0 22px rgb(37 99 235 / 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgb(16 185 129 / 0);
+    box-shadow: 0 0 0 0 rgb(37 99 235 / 0);
   }
 }
 
