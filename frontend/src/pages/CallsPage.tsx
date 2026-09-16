@@ -12,7 +12,8 @@ export default function CallsPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">Histórico de chamadas</h1>
-      <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto">
+      <table className="w-full min-w-[36rem] text-left text-sm">
         <thead className="text-slate-400">
           <tr>
             <th className="p-2">Zenvia</th>
@@ -40,6 +41,7 @@ export default function CallsPage() {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

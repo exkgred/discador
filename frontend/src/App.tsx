@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
-import { Navigate, Route, Routes, Link, useNavigate } from 'react-router-dom'
-import { Phone } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes, NavLink, useNavigate } from 'react-router-dom'
+import { Headset, History, LogOut, Megaphone, Phone, Users } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 import LoginPage from '@/pages/LoginPage'
 import AgentPage from '@/pages/AgentPage'
@@ -8,27 +8,44 @@ import LeadsPage from '@/pages/LeadsPage'
 import CampaignsPage from '@/pages/CampaignsPage'
 import CallsPage from '@/pages/CallsPage'
 
+const NAV = [
+  { to: '/', label: 'Agente', icon: Headset },
+  { to: '/leads', label: 'Leads', icon: Users },
+  { to: '/campaigns', label: 'Campanhas', icon: Megaphone },
+  { to: '/calls', label: 'Chamadas', icon: History },
+] as const
+
 function Layout({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-slate-800 bg-slate-900/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2 font-semibold text-emerald-400">
-            <Phone size={18} /> Discador
-          </Link>
-          <nav className="flex items-center gap-4 text-sm text-slate-300">
-            <Link to="/" className="hover:text-white">Agente</Link>
-            <Link to="/leads" className="hover:text-white">Leads</Link>
-            <Link to="/campaigns" className="hover:text-white">Campanhas</Link>
-            <Link to="/calls" className="hover:text-white">Chamadas</Link>
-            <span className="text-slate-500">{user?.name}</span>
+    <div className="min-h-dvh pb-[4.5rem] md:pb-0">
+      <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+          <NavLink to="/" className="flex shrink-0 items-center gap-2 font-semibold text-emerald-400">
+            <Phone size={18} />
+            <span>Discador</span>
+          </NavLink>
+          <nav className="hidden items-center gap-1 text-sm text-slate-300 md:flex">
+            {NAV.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                className={({ isActive }) =>
+                  `rounded-lg px-3 py-2 ${isActive ? 'bg-slate-800 text-white' : 'hover:text-white'}`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+            <span className="ml-2 hidden text-slate-500 lg:inline">{user?.name}</span>
             <button
               type="button"
-              className="text-rose-300 hover:text-rose-200"
+              className="ml-2 text-rose-300 hover:text-rose-200"
               onClick={() => {
                 logout()
                 navigate('/login')
@@ -37,9 +54,52 @@ function Layout({ children }: { children: React.ReactNode }) {
               Sair
             </button>
           </nav>
+          <button
+            type="button"
+            className="rounded-lg bg-slate-800 px-3 py-2 text-sm md:hidden"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label="Menu"
+          >
+            {user?.name?.split(' ')[0] ?? 'Menu'}
+          </button>
         </div>
+        {menuOpen && (
+          <div className="border-t border-slate-800 px-4 py-2 md:hidden">
+            <p className="mb-2 text-xs text-slate-500">{user?.email}</p>
+            <button
+              type="button"
+              className="text-sm text-rose-300"
+              onClick={() => {
+                logout()
+                navigate('/login')
+                setMenuOpen(false)
+              }}
+            >
+              <span className="inline-flex items-center gap-2"><LogOut size={14} /> Sair</span>
+            </button>
+          </div>
+        )}
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-4 md:py-6">{children}</main>
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-800 bg-slate-950/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+        <div className="grid grid-cols-4">
+          {NAV.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/'}
+              className={({ isActive }) =>
+                `flex flex-col items-center gap-1 px-2 py-2 text-[11px] ${
+                  isActive ? 'text-emerald-400' : 'text-slate-400'
+                }`
+              }
+            >
+              <item.icon size={18} />
+              {item.label}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
     </div>
   )
 }

@@ -2,8 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body,
+#root {
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
 body {
-  min-height: 100vh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+}
+
+button,
+a,
+select,
+input,
+textarea {
+  touch-action: manipulation;
 }
 
 @keyframes ring-pulse {
@@ -11,13 +26,32 @@ body {
     box-shadow: 0 0 0 0 rgb(16 185 129 / 0.45);
   }
   70% {
-    box-shadow: 0 0 0 18px rgb(16 185 129 / 0);
+    box-shadow: 0 0 0 22px rgb(16 185 129 / 0);
   }
   100% {
     box-shadow: 0 0 0 0 rgb(16 185 129 / 0);
   }
 }
 
-.ringing-card {
-  animation: ring-pulse 1.35s ease-out infinite;
+@keyframes ring-orbit {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+.ringing-avatar {
+  animation: ring-pulse 1.4s ease-out infinite;
+}
+
+.ring-orbit {
+  animation: ring-orbit 1.6s ease-out infinite;
+}
+
+.countdown-ring {
+  transform: rotate(-90deg);
 }

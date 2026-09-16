@@ -51,7 +51,8 @@ export default function LeadsPage() {
           {flash && <p className="text-sm text-emerald-300">{flash}</p>}
         </form>
       </div>
-      <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto">
+      <table className="w-full min-w-[28rem] text-left text-sm">
         <thead className="text-slate-400">
           <tr><th className="p-2">Nome</th><th>Telefone</th><th>DNC</th></tr>
         </thead>
@@ -65,6 +66,7 @@ export default function LeadsPage() {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

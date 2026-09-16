@@ -66,9 +66,9 @@ export default function CampaignsPage() {
           ))}
         </div>
         {campaigns.map((campaign) => (
-          <div key={campaign.id} className="mb-2 flex items-center justify-between rounded-lg bg-slate-950 px-3 py-2 text-sm">
+          <div key={campaign.id} className="mb-2 flex flex-col gap-2 rounded-lg bg-slate-950 px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
             <span>{campaign.name} · {campaign.dialMode} · {campaign.active ? 'ativa' : 'off'}</span>
-            <button type="button" className="text-emerald-400" onClick={() => void enqueue(campaign.id)}>
+            <button type="button" className="rounded-lg bg-slate-800 px-3 py-2 text-emerald-300" onClick={() => void enqueue(campaign.id)}>
               Adicionar selecionados
             </button>
           </div>
