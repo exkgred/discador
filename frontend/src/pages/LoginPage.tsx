@@ -28,43 +28,43 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-slate-900 px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(79,142,247,0.16),_transparent_42%),#0b0e14] px-4">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 rounded-xl bg-white p-8 shadow-2xl"
+        className="w-full max-w-sm space-y-4 rounded-xl border border-white/10 bg-ink-900/80 p-8 shadow-glow backdrop-blur"
       >
         <div className="text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-white">
             <Phone size={22} />
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">Discador Zenvia</h1>
-          <p className="text-sm text-slate-500">Entre para discar leads no navegador.</p>
+          <h1 className="text-2xl font-bold text-ink-300">Discador Zenvia</h1>
+          <p className="text-sm text-ink-500">Entre para discar leads no navegador.</p>
         </div>
-        <label className="block text-sm font-medium text-slate-700">
+        <label className="block text-sm font-medium text-ink-500">
           E-mail
           <input
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-lg border border-ink-700 bg-ink-800 px-3 py-2 text-sm text-ink-300 outline-none focus:border-accent"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </label>
-        <label className="block text-sm font-medium text-slate-700">
+        <label className="block text-sm font-medium text-ink-500">
           Senha
           <input
             type="password"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-lg border border-ink-700 bg-ink-800 px-3 py-2 text-sm text-ink-300 outline-none focus:border-accent"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
         <button
           type="submit"
-          className="w-full rounded-lg bg-blue-600 py-2.5 font-medium text-white hover:bg-blue-700"
+          className="w-full rounded-lg bg-accent py-2.5 font-medium text-white hover:bg-accent-hover"
         >
           Entrar
         </button>
-        <p className="text-center text-xs text-slate-400">agent@discador.dev / password123</p>
+        <p className="text-center text-xs text-ink-500">agent@discador.dev / password123</p>
       </form>
     </div>
   )

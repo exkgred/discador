@@ -9,7 +9,15 @@ body,
   min-height: 100dvh;
 }
 
+:root {
+  color-scheme: dark;
+}
+
 body {
+  background:
+    radial-gradient(circle at top, rgba(79, 142, 247, 0.16), transparent 42%),
+    #0b0e14;
+  color: #d5dbe8;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
 }
 
@@ -23,13 +31,13 @@ textarea {
 
 @keyframes ring-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgb(37 99 235 / 0.4);
+    box-shadow: 0 0 0 0 rgb(79 142 247 / 0.45);
   }
   70% {
-    box-shadow: 0 0 0 22px rgb(37 99 235 / 0);
+    box-shadow: 0 0 0 22px rgb(79 142 247 / 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgb(37 99 235 / 0);
+    box-shadow: 0 0 0 0 rgb(79 142 247 / 0);
   }
 }
 

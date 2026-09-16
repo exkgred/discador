@@ -22,32 +22,32 @@ function Layout({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-dvh bg-slate-50 pb-[4.5rem] md:pb-0">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
+    <div className="min-h-dvh bg-[radial-gradient(circle_at_top,_rgba(79,142,247,0.16),_transparent_42%),#0b0e14] pb-[4.5rem] md:pb-0">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-950/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <NavLink to="/" className="flex shrink-0 items-center gap-2 font-semibold text-slate-900">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
+          <NavLink to="/" className="flex shrink-0 items-center gap-2 font-semibold text-ink-300">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white">
               <Phone size={16} />
             </span>
             <span>Discador</span>
           </NavLink>
-          <nav className="hidden items-center gap-1 text-sm text-slate-600 md:flex">
+          <nav className="hidden items-center gap-1 text-sm text-ink-500 md:flex">
             {NAV.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.to === '/'}
                 className={({ isActive }) =>
-                  `rounded-md px-3 py-2 ${isActive ? 'bg-blue-50 text-blue-700' : 'hover:bg-slate-100'}`
+                  `rounded-md px-3 py-2 ${isActive ? 'bg-accent/15 text-accent' : 'hover:bg-white/5 hover:text-ink-300'}`
                 }
               >
                 {item.label}
               </NavLink>
             ))}
-            <span className="ml-2 hidden text-slate-400 lg:inline">{user?.name}</span>
+            <span className="ml-2 hidden text-ink-500 lg:inline">{user?.name}</span>
             <button
               type="button"
-              className="ml-2 text-slate-500 hover:text-slate-800"
+              className="ml-2 text-ink-500 hover:text-ink-300"
               onClick={() => {
                 logout()
                 navigate('/login')
@@ -58,7 +58,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           </nav>
           <button
             type="button"
-            className="rounded-lg bg-slate-100 px-3 py-2 text-sm md:hidden"
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm md:hidden"
             onClick={() => setMenuOpen((open) => !open)}
             aria-label="Menu"
           >
@@ -66,11 +66,11 @@ function Layout({ children }: { children: React.ReactNode }) {
           </button>
         </div>
         {menuOpen && (
-          <div className="border-t border-slate-200 px-4 py-2 md:hidden">
-            <p className="mb-2 text-xs text-slate-500">{user?.email}</p>
+          <div className="border-t border-ink-700 px-4 py-2 md:hidden">
+            <p className="mb-2 text-xs text-ink-500">{user?.email}</p>
             <button
               type="button"
-              className="text-sm text-slate-600"
+              className="text-sm text-ink-300"
               onClick={() => {
                 logout()
                 navigate('/login')
@@ -83,7 +83,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         )}
       </header>
       <main className="mx-auto max-w-6xl px-4 py-4 md:py-6">{children}</main>
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-ink-950/90 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         <div className="grid grid-cols-4">
           {NAV.map((item) => (
             <NavLink
@@ -92,7 +92,7 @@ function Layout({ children }: { children: React.ReactNode }) {
               end={item.to === '/'}
               className={({ isActive }) =>
                 `flex flex-col items-center gap-1 px-2 py-2 text-[11px] ${
-                  isActive ? 'text-blue-600' : 'text-slate-400'
+                  isActive ? 'text-accent' : 'text-ink-500'
                 }`
               }
             >

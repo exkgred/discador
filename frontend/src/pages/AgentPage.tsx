@@ -298,8 +298,8 @@ export default function AgentPage() {
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">Mesa do agente</h1>
-          <p className="text-slate-500">
+          <h1 className="text-2xl font-bold text-ink-300 sm:text-3xl">Mesa do agente</h1>
+          <p className="text-ink-500">
             {pending.length} lead(s) na fila
             {campaign ? ` · ${campaign.name}` : ''}.
           </p>
@@ -313,7 +313,7 @@ export default function AgentPage() {
               setCallAudioMuted(next)
               void unlockCallAudio()
             }}
-            className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm ring-1 ring-slate-200"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-ink-300"
             title={muted ? 'Ativar som' : 'Silenciar'}
           >
             {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -326,7 +326,7 @@ export default function AgentPage() {
               type="button"
               onClick={() => void dial()}
               disabled={pending.length === 0}
-              className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+              className="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-40"
             >
               <PhoneCall size={16} /> Discar próximo
             </button>
@@ -344,7 +344,7 @@ export default function AgentPage() {
       </div>
 
       {flash && (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">{flash}</p>
+        <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">{flash}</p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -354,23 +354,23 @@ export default function AgentPage() {
       </div>
 
       {onCall && lead && (
-        <section className="rounded-xl border border-blue-200 bg-white p-4 shadow-sm sm:p-5">
+        <section className="rounded-xl border border-accent/30 bg-accent/5 p-4 sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div
-                className={`flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 ${
+                className={`flex h-12 w-12 items-center justify-center rounded-full bg-accent/15 text-sm font-semibold text-accent ${
                   status === 'ringing' ? 'ringing-avatar' : ''
                 }`}
               >
                 {initials}
               </div>
               <div>
-                <p className="text-lg font-semibold text-slate-800">{lead.name}</p>
-                <p className="font-mono text-sm text-slate-500">{lead.phone}</p>
+                <p className="text-lg font-semibold text-ink-300">{lead.name}</p>
+                <p className="font-mono text-sm text-ink-500">{lead.phone}</p>
               </div>
             </div>
             <div className="flex items-center justify-between gap-4 sm:justify-end">
-              <p className="font-mono text-2xl tabular-nums text-blue-700">{formatDuration(elapsed)}</p>
+              <p className="font-mono text-2xl tabular-nums text-accent">{formatDuration(elapsed)}</p>
               <button
                 type="button"
                 onClick={() => void hangup()}
@@ -381,33 +381,33 @@ export default function AgentPage() {
             </div>
           </div>
           {campaign?.script && (
-            <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">{campaign.script}</p>
+            <p className="mt-4 rounded-lg bg-ink-800 px-3 py-2 text-sm text-ink-500">{campaign.script}</p>
           )}
         </section>
       )}
 
       {status === 'idle' && nextLead && (
-        <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <section className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Próximo lead</p>
-            <p className="font-semibold text-slate-800">{nextLead.name}</p>
-            <p className="font-mono text-sm text-slate-500">{nextLead.phone}</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-ink-500">Próximo lead</p>
+            <p className="font-semibold text-ink-300">{nextLead.name}</p>
+            <p className="font-mono text-sm text-ink-500">{nextLead.phone}</p>
           </div>
           <button
             type="button"
             onClick={() => void dial()}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium text-white hover:bg-accent-hover"
           >
             <PhoneCall size={16} /> Discar {nextLead.name.split(' ')[0]}
           </button>
         </section>
       )}
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="font-semibold text-slate-800">Fila da campanha</h2>
+      <section className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
+        <div className="flex flex-col gap-3 border-b border-white/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="font-semibold text-ink-300">Fila da campanha</h2>
           <select
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm sm:w-72"
+            className="w-full rounded-lg border border-ink-700 bg-ink-800 px-3 py-2 text-sm text-ink-300 sm:w-72"
             value={campaignId}
             onChange={(e) => setCampaignId(e.target.value)}
             disabled={status !== 'idle'}
@@ -421,7 +421,7 @@ export default function AgentPage() {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[32rem] text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500">
+            <thead className="bg-white/5 text-ink-500">
               <tr>
                 <th className="px-4 py-3 font-medium">Lead</th>
                 <th className="px-4 py-3 font-medium">Telefone</th>
@@ -431,9 +431,9 @@ export default function AgentPage() {
             </thead>
             <tbody>
               {queue.map((item) => (
-                <tr key={item.id} className="border-t border-slate-100">
-                  <td className="px-4 py-3 font-medium text-slate-800">{item.lead?.name}</td>
-                  <td className="px-4 py-3 font-mono text-slate-500">{item.lead?.phone}</td>
+                <tr key={item.id} className="border-t border-white/10">
+                  <td className="px-4 py-3 font-medium text-ink-300">{item.lead?.name}</td>
+                  <td className="px-4 py-3 font-mono text-ink-500">{item.lead?.phone}</td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${queueBadge(item.status)}`}>
                       {queueLabel(item.status)}
@@ -443,7 +443,7 @@ export default function AgentPage() {
                     {item.status === 'PENDING' && status === 'idle' && (
                       <button
                         type="button"
-                        className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                        className="text-sm font-medium text-accent hover:text-white"
                         onClick={() => void dial(item.id)}
                       >
                         Discar
@@ -454,7 +454,7 @@ export default function AgentPage() {
               ))}
               {queue.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan={4} className="px-4 py-8 text-center text-ink-500">
                     Nenhum lead na fila desta campanha.
                   </td>
                 </tr>
@@ -477,12 +477,12 @@ export default function AgentPage() {
       )}
 
       {status === 'wrap_up' && current && (
-        <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-4 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:bg-slate-900/40 sm:p-4">
-          <div className="mx-auto w-full max-w-md space-y-4 rounded-t-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:rounded-xl">
+        <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-4 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:bg-black/60 sm:p-4">
+          <div className="mx-auto w-full max-w-md space-y-4 rounded-t-2xl border border-white/10 bg-ink-900 p-5 shadow-2xl sm:rounded-xl">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-slate-800">Ligação encerrada</h2>
-                <p className="text-sm text-slate-500">
+                <h2 className="text-lg font-semibold text-ink-300">Ligação encerrada</h2>
+                <p className="text-sm text-ink-500">
                   {lead?.name} · {formatDuration(current.call.durationSeconds ?? elapsed)}
                 </p>
               </div>
@@ -499,8 +499,8 @@ export default function AgentPage() {
                   onClick={() => setDisposition(item.id)}
                   className={`shrink-0 rounded-full px-3 py-2 text-sm ${
                     disposition === item.id
-                      ? 'bg-blue-600 font-medium text-white'
-                      : 'bg-slate-100 text-slate-600'
+                      ? 'bg-accent font-medium text-white'
+                      : 'bg-ink-800 text-ink-500'
                   }`}
                 >
                   {item.label}
@@ -510,13 +510,13 @@ export default function AgentPage() {
             {disposition === 'CALLBACK' && (
               <input
                 type="datetime-local"
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-3"
+                className="w-full rounded-lg border border-ink-700 bg-ink-800 px-3 py-3 text-ink-300"
                 value={callbackAt}
                 onChange={(e) => setCallbackAt(e.target.value)}
               />
             )}
             <textarea
-              className="h-20 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base"
+              className="h-20 w-full rounded-lg border border-ink-700 bg-ink-800 px-3 py-2 text-base text-ink-300"
               placeholder="Observações (opcional)"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -527,14 +527,14 @@ export default function AgentPage() {
                 <button
                   type="button"
                   onClick={() => void submitWrapUp(false)}
-                  className="h-11 rounded-lg bg-slate-100 font-medium text-slate-700"
+                  className="h-11 rounded-lg bg-ink-800 font-medium text-ink-300"
                 >
                   Parar
                 </button>
                 <button
                   type="button"
                   onClick={() => void submitWrapUp(true)}
-                  className="h-11 rounded-lg bg-blue-600 font-semibold text-white hover:bg-blue-700"
+                  className="h-11 rounded-lg bg-accent font-semibold text-white hover:bg-accent-hover"
                 >
                   Ligar agora
                 </button>
@@ -543,13 +543,13 @@ export default function AgentPage() {
               <button
                 type="button"
                 onClick={() => void submitWrapUp(false)}
-                className="h-11 w-full rounded-lg bg-blue-600 font-semibold text-white hover:bg-blue-700"
+                className="h-11 w-full rounded-lg bg-accent font-semibold text-white hover:bg-accent-hover"
               >
                 Salvar e continuar
               </button>
             )}
             {willAutoNext && countdown != null && (
-              <p className="text-center text-xs text-slate-500">
+              <p className="text-center text-xs text-ink-500">
                 Próxima ligação em {countdown}s. Toque em Parar se quiser pausar.
               </p>
             )}
@@ -562,9 +562,9 @@ export default function AgentPage() {
 
 function Kpi({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-sm font-medium text-slate-500">{label}</p>
-      <p className="mt-1 truncate text-xl font-bold text-slate-800">{value}</p>
+    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+      <p className="text-sm font-medium text-ink-500">{label}</p>
+      <p className="mt-1 truncate text-xl font-bold text-ink-300">{value}</p>
     </div>
   )
 }
@@ -580,12 +580,12 @@ function initialsOf(name?: string): string {
 }
 
 function queueBadge(status: string): string {
-  if (status === 'PENDING') return 'bg-blue-50 text-blue-700'
-  if (status === 'DIALING') return 'bg-amber-50 text-amber-700'
-  if (status === 'DONE') return 'bg-emerald-50 text-emerald-700'
-  if (status === 'CALLBACK') return 'bg-violet-50 text-violet-700'
-  if (status === 'DNC') return 'bg-red-50 text-red-700'
-  return 'bg-slate-100 text-slate-600'
+  if (status === 'PENDING') return 'bg-accent/15 text-accent'
+  if (status === 'DIALING') return 'bg-amber-500/15 text-amber-300'
+  if (status === 'DONE') return 'bg-emerald-500/15 text-emerald-300'
+  if (status === 'CALLBACK') return 'bg-violet-500/15 text-violet-300'
+  if (status === 'DNC') return 'bg-red-500/15 text-red-300'
+  return 'bg-ink-800 text-ink-500'
 }
 
 function queueLabel(status: string): string {
@@ -607,13 +607,13 @@ function CountdownBadge({ seconds, total }: { seconds: number; total: number }) 
   return (
     <div className="relative h-12 w-12 shrink-0">
       <svg viewBox="0 0 40 40" className="countdown-ring h-12 w-12">
-        <circle cx="20" cy="20" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="4" />
+        <circle cx="20" cy="20" r={radius} fill="none" stroke="#252b3d" strokeWidth="4" />
         <circle
           cx="20"
           cy="20"
           r={radius}
           fill="none"
-          stroke="#2563eb"
+          stroke="#4f8ef7"
           strokeWidth="4"
           strokeDasharray={circ}
           strokeDashoffset={circ * (1 - progress)}
@@ -628,10 +628,10 @@ function CountdownBadge({ seconds, total }: { seconds: number; total: number }) 
 }
 
 function statusTone(status: AgentStatus): string {
-  if (status === 'ringing') return 'bg-amber-100 text-amber-700'
-  if (status === 'in_call') return 'bg-blue-100 text-blue-700'
-  if (status === 'wrap_up') return 'bg-slate-100 text-slate-600'
-  return 'bg-slate-100 text-slate-500'
+  if (status === 'ringing') return 'bg-amber-500/15 text-amber-300'
+  if (status === 'in_call') return 'bg-accent/15 text-accent'
+  if (status === 'wrap_up') return 'bg-ink-800 text-ink-300'
+  return 'bg-ink-800 text-ink-500'
 }
 
 function formatDuration(total: number): string {
