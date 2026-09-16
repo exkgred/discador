@@ -5,3 +5,19 @@
 body {
   min-height: 100vh;
 }
+
+@keyframes ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(16 185 129 / 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 18px rgb(16 185 129 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(16 185 129 / 0);
+  }
+}
+
+.ringing-card {
+  animation: ring-pulse 1.35s ease-out infinite;
+}

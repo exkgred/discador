@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm ci --prefix frontend",
+  "installCommand": "cd frontend && npm ci",
   "buildCommand": "cd frontend && npx vite build",
   "outputDirectory": "frontend/dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
