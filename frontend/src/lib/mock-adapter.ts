@@ -1,8 +1,10 @@
 import type { AxiosAdapter, InternalAxiosRequestConfig } from 'axios'
-import type { Call, Campaign, CampaignLead, Lead, PublicUser } from './types'
+import type { Call, Campaign, CampaignLead, Lead, LiveSession, PublicUser } from './types'
 import { DEMO_CAMPAIGNS, DEMO_LEADS, DEMO_PRELOAD_CAMPAIGN_IDS } from './demo-catalog'
+import { DEMO_TEAM, seedTeamCalls, seedTeamSessions } from './demo-team'
+import { buildSupervisorOverview } from './supervisor'
 
-const STORAGE_KEY = 'discador-demo-state-v2'
+const STORAGE_KEY = 'discador-demo-state-v3'
 
 interface DemoUser extends PublicUser {
   password: string
@@ -14,6 +16,7 @@ interface DemoState {
   campaigns: Campaign[]
   queue: CampaignLead[]
   calls: Call[]
+  sessions: Record<string, LiveSession>
   currentUserId: string | null
 }
 
@@ -56,15 +59,12 @@ function seed(): DemoState {
     })
   }
   return {
-    users: [
-      { id: 'u-admin', name: 'Admin Discador', email: 'admin@discador.dev', role: 'ADMIN', ramalId: '1000', password: 'password123' },
-      { id: 'u-sup', name: 'Supervisor', email: 'supervisor@discador.dev', role: 'SUPERVISOR', ramalId: '1001', password: 'password123' },
-      { id: 'u-agent', name: 'Agente Demo', email: 'agent@discador.dev', role: 'AGENT', ramalId: '1002', password: 'password123' },
-    ],
+    users: DEMO_TEAM.map((item) => ({ ...item })),
     leads,
     campaigns,
     queue,
-    calls: [],
+    calls: seedTeamCalls(),
+    sessions: seedTeamSessions(),
     currentUserId: null,
   }
 }
@@ -83,6 +83,7 @@ function load(): DemoState {
         ...campaign,
         segment: campaign.segment ?? null,
       }))
+      parsed.sessions = parsed.sessions ?? {}
       return parsed
     }
   } catch {
@@ -136,6 +137,38 @@ function publicUser(user: DemoUser): PublicUser {
   return { id: user.id, name: user.name, email: user.email, role: user.role, ramalId: user.ramalId }
 }
 
+function actor(state: DemoState, config: InternalAxiosRequestConfig): DemoUser {
+  const header = String(config.headers?.Authorization ?? '')
+  const token = header.replace(/^Bearer\s+/i, '')
+  const fromToken = token.startsWith('demo-') ? token.slice(5) : ''
+  const id = state.currentUserId || fromToken
+  return (
+    state.users.find((item) => item.id === id) ??
+    state.users.find((item) => item.id === 'u-agent') ??
+    state.users[2]
+  )
+}
+
+function setSession(
+  state: DemoState,
+  user: DemoUser,
+  status: LiveSession['status'],
+  campaignId: string | null,
+  leadName: string | null,
+): void {
+  if (status === 'offline') {
+    delete state.sessions[user.id]
+    return
+  }
+  state.sessions[user.id] = {
+    userId: user.id,
+    status,
+    campaignId,
+    leadName,
+    startedAt: new Date().toISOString(),
+  }
+}
+
 function parseBody(config: InternalAxiosRequestConfig): Record<string, unknown> {
   if (!config.data) return {}
   return typeof config.data === 'string'
@@ -168,10 +201,10 @@ function handle(config: InternalAxiosRequestConfig): ReturnType<typeof ok> {
     })
   }
 
-  const agent = state.users.find((item) => item.id === 'u-agent') ?? state.users[2]
+  const user = actor(state, config)
 
   if (path === '/auth/me' && method === 'GET') {
-    return ok(publicUser(agent))
+    return ok(publicUser(user))
   }
   if (path === '/auth/logout' && method === 'POST') return ok({ ok: true })
 
@@ -274,7 +307,34 @@ function handle(config: InternalAxiosRequestConfig): ReturnType<typeof ok> {
   }
 
   if (path === '/agent/ready' && method === 'POST') {
+    setSession(state, user, 'idle', String(body.campaignId || ''), null)
+    save(state)
     return ok({ campaignId: body.campaignId, status: 'idle' })
+  }
+
+  if (path === '/agent/status' && method === 'POST') {
+    const status = String(body.status || 'idle') as LiveSession['status']
+    setSession(
+      state,
+      user,
+      status,
+      body.campaignId ? String(body.campaignId) : state.sessions[user.id]?.campaignId ?? null,
+      body.leadName ? String(body.leadName) : null,
+    )
+    save(state)
+    return ok(state.sessions[user.id] ?? { userId: user.id, status: 'offline' })
+  }
+
+  if (path === '/supervisor/overview' && method === 'GET') {
+    return ok(
+      buildSupervisorOverview({
+        users: state.users.map(publicUser),
+        calls: state.calls,
+        campaigns: state.campaigns,
+        queue: state.queue,
+        sessions: state.sessions,
+      }),
+    )
   }
 
   if (path === '/agent/dial' && method === 'POST') {
@@ -286,22 +346,26 @@ function handle(config: InternalAxiosRequestConfig): ReturnType<typeof ok> {
     if (!next?.lead) fail('Fila da campanha vazia', 422)
     if (next.lead.dncBlocked) fail('Número na lista Não Me Perturbe', 422)
     next.status = 'DIALING'
-    next.agentId = agent.id
+    next.agentId = user.id
     const call: Call = {
       id: uid('call'),
       zenviaChamadaId: String(Math.floor(10_000_000 + Math.random() * 80_000_000)),
       campaignId,
       campaignLeadId: next.id,
       leadId: next.leadId,
-      agentId: agent.id,
+      agentId: user.id,
+      agentName: user.name,
+      leadName: next.lead.name,
       status: 'RINGING',
       recordingUrl: null,
       durationSeconds: null,
       spokenSeconds: null,
       disposition: null,
       disconnectReason: null,
+      startedAt: nowIso(),
     }
     state.calls.unshift(call)
+    setSession(state, user, 'ringing', campaignId, next.lead.name)
     save(state)
     return ok({ call, campaignLead: next, mock: true })
   }
@@ -309,7 +373,11 @@ function handle(config: InternalAxiosRequestConfig): ReturnType<typeof ok> {
   const hangup = path.match(/^\/calls\/([^/]+)\/hangup$/)
   if (hangup && method === 'POST') {
     const call = state.calls.find((item) => item.id === hangup[1])
-    if (call) call.status = 'FINALIZED'
+    if (call) {
+      call.status = 'FINALIZED'
+      const owner = state.users.find((item) => item.id === call.agentId) ?? user
+      setSession(state, owner, 'wrap_up', call.campaignId, call.leadName ?? null)
+    }
     save(state)
     return ok(call)
   }
@@ -346,24 +414,32 @@ function handle(config: InternalAxiosRequestConfig): ReturnType<typeof ok> {
           campaignId: call.campaignId,
           campaignLeadId: pending.id,
           leadId: pending.leadId,
-          agentId: agent.id,
+          agentId: user.id,
+          agentName: user.name,
+          leadName: pending.lead.name,
           status: 'RINGING',
           recordingUrl: null,
           durationSeconds: null,
           spokenSeconds: null,
           disposition: null,
           disconnectReason: null,
+          startedAt: nowIso(),
         }
         state.calls.unshift(nextCall)
         next = { call: nextCall, campaignLead: pending }
+        setSession(state, user, 'ringing', call.campaignId, pending.lead.name)
+      } else {
+        setSession(state, user, 'idle', call.campaignId, null)
       }
+    } else {
+      setSession(state, user, 'idle', call.campaignId, null)
     }
     save(state)
     return ok({ call, next })
   }
 
   if (path === '/calls' && method === 'GET') {
-    return ok(state.calls, { page: 1, perPage: 20, total: state.calls.length })
+    return ok(state.calls, { page: 1, perPage: state.calls.length, total: state.calls.length })
   }
 
   fail(`Rota demo não implementada: ${method} ${path}`, 404)

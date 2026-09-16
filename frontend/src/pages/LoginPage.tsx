@@ -21,7 +21,7 @@ export default function LoginPage() {
       >('/auth/login', { email, password })
       const session = unwrap(data)
       setSession(session.user, session.tokens.accessToken, session.tokens.refreshToken)
-      navigate('/')
+      navigate(session.user.role === 'AGENT' ? '/' : '/equipe')
     } catch {
       setError('Credenciais inválidas')
     }
@@ -38,7 +38,7 @@ export default function LoginPage() {
             <Phone size={22} />
           </div>
           <h1 className="text-2xl font-bold text-ink-300">Discador Zenvia</h1>
-          <p className="text-sm text-ink-500">Entre para discar leads no navegador.</p>
+          <p className="text-sm text-ink-500">Agente disca. Supervisor acompanha a equipe.</p>
         </div>
         <label className="block text-sm font-medium text-ink-500">
           E-mail
@@ -64,7 +64,23 @@ export default function LoginPage() {
         >
           Entrar
         </button>
-        <p className="text-center text-xs text-ink-500">agent@discador.dev / password123</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            className="rounded-lg bg-ink-800 px-2 py-2 text-xs text-ink-300"
+            onClick={() => setEmail('agent@discador.dev')}
+          >
+            Agente
+          </button>
+          <button
+            type="button"
+            className="rounded-lg bg-ink-800 px-2 py-2 text-xs text-ink-300"
+            onClick={() => setEmail('supervisor@discador.dev')}
+          >
+            Supervisor
+          </button>
+        </div>
+        <p className="text-center text-xs text-ink-500">senha: password123</p>
       </form>
     </div>
   )

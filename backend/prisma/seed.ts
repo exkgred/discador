@@ -140,6 +140,25 @@ async function main(): Promise<void> {
     },
   });
 
+  for (const extra of [
+    { name: 'Bruno Costa', email: 'bruno@discador.dev', ramalId: '1003' },
+    { name: 'Carla Mendes', email: 'carla@discador.dev', ramalId: '1004' },
+    { name: 'Diego Alves', email: 'diego@discador.dev', ramalId: '1005' },
+    { name: 'Elisa Ramos', email: 'elisa@discador.dev', ramalId: '1006' },
+  ]) {
+    await prisma.user.upsert({
+      where: { email: extra.email },
+      update: { passwordHash: hash, role: 'AGENT', ramalId: extra.ramalId },
+      create: {
+        name: extra.name,
+        email: extra.email,
+        passwordHash: hash,
+        role: 'AGENT',
+        ramalId: extra.ramalId,
+      },
+    });
+  }
+
   await prisma.doNotCall.upsert({
     where: { phone: '+5511900000000' },
     update: {},

@@ -177,6 +177,14 @@ export default function AgentPage() {
   }, [token])
 
   useEffect(() => {
+    void api.post('/agent/status', {
+      status,
+      campaignId,
+      leadName: current?.campaignLead.lead?.name ?? null,
+    })
+  }, [status, campaignId, current?.campaignLead.lead?.name])
+
+  useEffect(() => {
     function onMessage(event: MessageEvent) {
       const message = (event.data as { message?: string })?.message
       if (message === 'status' || message === 'chamada_id') {

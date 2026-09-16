@@ -21,6 +21,7 @@ import {
   DialNextLeadUseCase,
   SetAgentReadyUseCase,
 } from '../../application/use-cases/dialer/dial-next-lead.use-case';
+import { GetSupervisorOverviewUseCase } from '../../application/use-cases/supervisor/get-supervisor-overview.use-case';
 import { HandleZenviaWebhookUseCase } from '../../application/use-cases/webhooks/handle-zenvia-webhook.use-case';
 import { UnauthorizedError } from '../../domain/errors/domain-error';
 import { JwtAuthGuard } from '../../infrastructure/auth/jwt-auth.guard';
@@ -45,6 +46,7 @@ export class DialerController {
     private readonly hangup: HangupCallUseCase,
     private readonly listCalls: ListCallsUseCase,
     private readonly webphone: GetWebphoneUseCase,
+    private readonly overview: GetSupervisorOverviewUseCase,
     private readonly webhook: HandleZenviaWebhookUseCase,
     private readonly config: ConfigService,
   ) {}
@@ -109,6 +111,13 @@ export class DialerController {
       page: query.page,
       perPage: query.perPage,
     });
+  }
+
+  @Get('supervisor/overview')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Painel da equipe: status ao vivo e métricas por agente' })
+  teamOverview() {
+    return this.overview.execute();
   }
 
   @Get('webphone')

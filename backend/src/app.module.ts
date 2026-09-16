@@ -42,6 +42,7 @@ import {
   ListLeadsUseCase,
   UpdateLeadUseCase,
 } from './application/use-cases/leads/leads.use-case';
+import { GetSupervisorOverviewUseCase } from './application/use-cases/supervisor/get-supervisor-overview.use-case';
 import { HandleZenviaWebhookUseCase } from './application/use-cases/webhooks/handle-zenvia-webhook.use-case';
 import {
   AGENT_SESSION_PORT,
@@ -165,6 +166,7 @@ import type { HangupScheduler } from './domain/ports/realtime.port';
     HangupCallUseCase,
     ListCallsUseCase,
     GetWebphoneUseCase,
+    GetSupervisorOverviewUseCase,
   ],
 })
 export class AppModule {}

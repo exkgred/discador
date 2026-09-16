@@ -39,6 +39,7 @@ describe('LoginUserUseCase', () => {
     userRepo = {
       findByEmail: jest.fn(),
       findById: jest.fn(),
+      list: jest.fn(),
       create: jest.fn(),
       toPublic: jest.fn(),
     };

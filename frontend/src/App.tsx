@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, NavLink, useNavigate } from 'react-router-dom'
-import { Headset, History, LogOut, Megaphone, Phone, Users } from 'lucide-react'
+import { Headset, History, LayoutDashboard, LogOut, Megaphone, Phone, Users } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 import LoginPage from '@/pages/LoginPage'
 import AgentPage from '@/pages/AgentPage'
 import LeadsPage from '@/pages/LeadsPage'
 import CampaignsPage from '@/pages/CampaignsPage'
 import CallsPage from '@/pages/CallsPage'
+import SupervisorPage from '@/pages/SupervisorPage'
 
 const NAV = [
+  { to: '/equipe', label: 'Equipe', icon: LayoutDashboard },
   { to: '/', label: 'Agente', icon: Headset },
   { to: '/leads', label: 'Leads', icon: Users },
   { to: '/campaigns', label: 'Campanhas', icon: Megaphone },
@@ -84,7 +86,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       </header>
       <main className="mx-auto max-w-6xl px-4 py-4 md:py-6">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-ink-950/90 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-5">
           {NAV.map((item) => (
             <NavLink
               key={item.to}
@@ -120,6 +122,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/equipe" element={<Private><SupervisorPage /></Private>} />
       <Route path="/" element={<Private><AgentPage /></Private>} />
       <Route path="/leads" element={<Private><LeadsPage /></Private>} />
       <Route path="/campaigns" element={<Private><CampaignsPage /></Private>} />
