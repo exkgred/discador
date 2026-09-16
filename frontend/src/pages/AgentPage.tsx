@@ -187,17 +187,11 @@ export default function AgentPage() {
     return () => window.removeEventListener('message', onMessage)
   }, [webphoneMock])
 
-  async function ready() {
-    setFlash('')
-    await unlockCallAudio()
-    await api.post('/agent/ready', { campaignId })
-    setStatus('idle')
-  }
-
   async function dial(campaignLeadId?: string) {
     setFlash('')
     await unlockCallAudio()
     try {
+      await api.post('/agent/ready', { campaignId })
       const { data } = await api.post<Envelope<{ call: Call; campaignLead: CampaignLead; mock: boolean }>>(
         '/agent/dial',
         { campaignId, campaignLeadId },
@@ -293,182 +287,201 @@ export default function AgentPage() {
   }
 
   const lead = current?.campaignLead.lead
-  const initials = (lead?.name ?? '?')
-    .split(' ')
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toUpperCase()
+  const nextLead = pending[0]?.lead
+  const initials = initialsOf(lead?.name)
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+    <div className="space-y-6">
       {webphoneUrl && !webphoneMock && (
         <iframe title="webphone" src={webphoneUrl} className="hidden" allow="microphone; autoplay" />
       )}
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between px-4 pt-4 sm:px-6">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Mesa do agente</p>
-            <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">Ligação</h1>
-          </div>
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">Mesa do agente</h1>
+          <p className="text-slate-500">
+            {pending.length} lead(s) na fila
+            {campaign ? ` · ${campaign.name}` : ''}.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !muted
+              setMuted(next)
+              setCallAudioMuted(next)
+              void unlockCallAudio()
+            }}
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm ring-1 ring-slate-200"
+            title={muted ? 'Ativar som' : 'Silenciar'}
+          >
+            {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${statusTone(status)}`}>
+            {STATUS_LABEL[status]}
+          </span>
+          {status === 'idle' && (
             <button
               type="button"
-              onClick={() => {
-                const next = !muted
-                setMuted(next)
-                setCallAudioMuted(next)
-                void unlockCallAudio()
-              }}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-600"
-              title={muted ? 'Ativar som' : 'Silenciar'}
+              onClick={() => void dial()}
+              disabled={pending.length === 0}
+              className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
             >
-              {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              <PhoneCall size={16} /> Discar próximo
             </button>
-            <span className={`rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${statusTone(status)}`}>
-              {STATUS_LABEL[status]}
-            </span>
-          </div>
-        </div>
-
-        <div className="px-4 pb-6 pt-6 sm:px-6">
-          <label className="block text-sm font-medium text-slate-700">
-            Campanha
-            <select
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-base text-slate-900 disabled:bg-slate-50 disabled:opacity-60"
-              value={campaignId}
-              onChange={(e) => setCampaignId(e.target.value)}
-              disabled={status !== 'idle'}
+          )}
+          {onCall && (
+            <button
+              type="button"
+              onClick={() => void hangup()}
+              className="hidden h-10 items-center gap-2 rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 sm:inline-flex"
             >
-              {campaigns.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name} ({item.dialMode === 'POWER' ? 'automático' : 'manual'})
-                </option>
-              ))}
-            </select>
-          </label>
+              <PhoneOff size={16} /> Encerrar
+            </button>
+          )}
+        </div>
+      </div>
 
-          <div className="mt-8 flex flex-col items-center text-center">
-            <div className="relative mb-5">
-              {status === 'ringing' && (
-                <>
-                  <span className="ring-orbit absolute inset-0 rounded-full border-2 border-blue-400/60" />
-                  <span className="ring-orbit absolute inset-0 rounded-full border-2 border-blue-300/40 [animation-delay:400ms]" />
-                </>
-              )}
+      {flash && (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">{flash}</p>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Kpi label="Pendentes" value={String(pending.length)} />
+        <Kpi label="Campanha" value={campaign?.name ?? '—'} />
+        <Kpi label="Modo" value={campaign?.dialMode === 'POWER' ? 'Automático' : 'Manual'} />
+      </div>
+
+      {onCall && lead && (
+        <section className="rounded-xl border border-blue-200 bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
               <div
-                className={`relative flex h-28 w-28 items-center justify-center rounded-full bg-blue-50 text-3xl font-semibold text-blue-700 sm:h-32 sm:w-32 ${
+                className={`flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 ${
                   status === 'ringing' ? 'ringing-avatar' : ''
-                } ${status === 'in_call' ? 'ring-4 ring-blue-200' : ''}`}
+                }`}
               >
-                {lead ? initials : <PhoneCall size={36} />}
+                {initials}
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-slate-800">{lead.name}</p>
+                <p className="font-mono text-sm text-slate-500">{lead.phone}</p>
               </div>
             </div>
-
-            <p className="text-2xl font-semibold text-slate-900 sm:text-3xl">
-              {lead?.name ?? 'Ninguém na linha'}
-            </p>
-            <p className="mt-1 font-mono text-sm text-slate-500 sm:text-base">
-              {lead?.phone ?? 'Escolha uma campanha e disque'}
-            </p>
-            <p className="mt-3 font-mono text-3xl tabular-nums text-blue-700">
-              {formatDuration(elapsed)}
-            </p>
-            {current && (
-              <p className="mt-1 text-xs text-slate-400">chamada {current.call.zenviaChamadaId}</p>
-            )}
+            <div className="flex items-center justify-between gap-4 sm:justify-end">
+              <p className="font-mono text-2xl tabular-nums text-blue-700">{formatDuration(elapsed)}</p>
+              <button
+                type="button"
+                onClick={() => void hangup()}
+                className="inline-flex h-11 items-center gap-2 rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 sm:hidden"
+              >
+                <PhoneOff size={16} /> Encerrar
+              </button>
+            </div>
           </div>
+          {campaign?.script && (
+            <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">{campaign.script}</p>
+          )}
+        </section>
+      )}
 
-          {flash && <p className="mt-4 text-center text-sm text-amber-700">{flash}</p>}
-
-          <div className="mt-6 rounded-2xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-600">
-            <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Script</p>
-            {campaign?.script ?? 'Selecione uma campanha.'}
+      {status === 'idle' && nextLead && (
+        <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Próximo lead</p>
+            <p className="font-semibold text-slate-800">{nextLead.name}</p>
+            <p className="font-mono text-sm text-slate-500">{nextLead.phone}</p>
           </div>
+          <button
+            type="button"
+            onClick={() => void dial()}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <PhoneCall size={16} /> Discar {nextLead.name.split(' ')[0]}
+          </button>
+        </section>
+      )}
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            {status === 'idle' && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => void ready()}
-                  className="h-12 rounded-xl bg-slate-100 px-4 text-sm font-medium text-slate-700 hover:bg-slate-200"
-                >
-                  Ficar disponível
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void dial()}
-                  disabled={pending.length === 0}
-                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-base font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
-                >
-                  <PhoneCall size={18} /> Discar próximo
-                </button>
-              </>
-            )}
-            {onCall && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => void hangup()}
-                  className="hidden h-16 w-full items-center justify-center gap-2 rounded-xl bg-red-600 text-base font-semibold text-white hover:bg-red-700 sm:inline-flex"
-                >
-                  <PhoneOff size={22} /> Encerrar ligação
-                </button>
-                <div className="h-2 sm:hidden" />
-              </>
-            )}
-          </div>
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="font-semibold text-slate-800">Fila da campanha</h2>
+          <select
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm sm:w-72"
+            value={campaignId}
+            onChange={(e) => setCampaignId(e.target.value)}
+            disabled={status !== 'idle'}
+          >
+            {campaigns.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name} ({item.dialMode === 'POWER' ? 'automático' : 'manual'})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[32rem] text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">Lead</th>
+                <th className="px-4 py-3 font-medium">Telefone</th>
+                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {queue.map((item) => (
+                <tr key={item.id} className="border-t border-slate-100">
+                  <td className="px-4 py-3 font-medium text-slate-800">{item.lead?.name}</td>
+                  <td className="px-4 py-3 font-mono text-slate-500">{item.lead?.phone}</td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${queueBadge(item.status)}`}>
+                      {queueLabel(item.status)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {item.status === 'PENDING' && status === 'idle' && (
+                      <button
+                        type="button"
+                        className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                        onClick={() => void dial(item.id)}
+                      >
+                        Discar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {queue.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
+                    Nenhum lead na fila desta campanha.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
-
-      <aside className="space-y-4 pb-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-          <h2 className="mb-3 font-medium text-slate-900">Fila ({pending.length} pendentes)</h2>
-          <ul className="max-h-72 space-y-2 overflow-auto text-sm">
-            {queue.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-slate-800">{item.lead?.name}</p>
-                  <p className="truncate text-xs text-slate-500">{item.lead?.phone} · {item.status}</p>
-                </div>
-                {item.status === 'PENDING' && status === 'idle' && (
-                  <button
-                    type="button"
-                    className="shrink-0 rounded-lg bg-blue-50 px-3 py-2 text-blue-700"
-                    onClick={() => void dial(item.id)}
-                  >
-                    Discar
-                  </button>
-                )}
-              </li>
-            ))}
-            {queue.length === 0 && (
-              <li className="text-sm text-slate-500">Nenhum lead na fila.</li>
-            )}
-          </ul>
-        </div>
-      </aside>
 
       {onCall && (
         <div className="fixed inset-x-0 z-30 px-4 sm:hidden" style={{ bottom: 'calc(4.6rem + env(safe-area-inset-bottom))' }}>
           <button
             type="button"
             onClick={() => void hangup()}
-            className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-red-600 text-base font-semibold text-white shadow-lg"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-sm font-semibold text-white shadow-lg"
           >
-            <PhoneOff size={22} /> Encerrar ligação
+            <PhoneOff size={18} /> Encerrar ligação
           </button>
         </div>
       )}
 
       {status === 'wrap_up' && current && (
         <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-4 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:bg-slate-900/40 sm:p-4">
-          <div className="mx-auto w-full max-w-md space-y-4 rounded-t-3xl border border-slate-200 bg-white p-5 shadow-2xl sm:rounded-2xl">
+          <div className="mx-auto w-full max-w-md space-y-4 rounded-t-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:rounded-xl">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">Ligação encerrada</h2>
+                <h2 className="text-lg font-semibold text-slate-800">Ligação encerrada</h2>
                 <p className="text-sm text-slate-500">
                   {lead?.name} · {formatDuration(current.call.durationSeconds ?? elapsed)}
                 </p>
@@ -497,13 +510,13 @@ export default function AgentPage() {
             {disposition === 'CALLBACK' && (
               <input
                 type="datetime-local"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-3"
                 value={callbackAt}
                 onChange={(e) => setCallbackAt(e.target.value)}
               />
             )}
             <textarea
-              className="h-20 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-base"
+              className="h-20 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base"
               placeholder="Observações (opcional)"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -514,14 +527,14 @@ export default function AgentPage() {
                 <button
                   type="button"
                   onClick={() => void submitWrapUp(false)}
-                  className="h-12 rounded-xl bg-slate-100 font-medium text-slate-700"
+                  className="h-11 rounded-lg bg-slate-100 font-medium text-slate-700"
                 >
                   Parar
                 </button>
                 <button
                   type="button"
                   onClick={() => void submitWrapUp(true)}
-                  className="h-12 rounded-xl bg-blue-600 font-semibold text-white hover:bg-blue-700"
+                  className="h-11 rounded-lg bg-blue-600 font-semibold text-white hover:bg-blue-700"
                 >
                   Ligar agora
                 </button>
@@ -530,7 +543,7 @@ export default function AgentPage() {
               <button
                 type="button"
                 onClick={() => void submitWrapUp(false)}
-                className="h-12 w-full rounded-xl bg-blue-600 font-semibold text-white hover:bg-blue-700"
+                className="h-11 w-full rounded-lg bg-blue-600 font-semibold text-white hover:bg-blue-700"
               >
                 Salvar e continuar
               </button>
@@ -545,6 +558,46 @@ export default function AgentPage() {
       )}
     </div>
   )
+}
+
+function Kpi({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <p className="text-sm font-medium text-slate-500">{label}</p>
+      <p className="mt-1 truncate text-xl font-bold text-slate-800">{value}</p>
+    </div>
+  )
+}
+
+function initialsOf(name?: string): string {
+  if (!name) return '?'
+  return name
+    .split(' ')
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+}
+
+function queueBadge(status: string): string {
+  if (status === 'PENDING') return 'bg-blue-50 text-blue-700'
+  if (status === 'DIALING') return 'bg-amber-50 text-amber-700'
+  if (status === 'DONE') return 'bg-emerald-50 text-emerald-700'
+  if (status === 'CALLBACK') return 'bg-violet-50 text-violet-700'
+  if (status === 'DNC') return 'bg-red-50 text-red-700'
+  return 'bg-slate-100 text-slate-600'
+}
+
+function queueLabel(status: string): string {
+  const labels: Record<string, string> = {
+    PENDING: 'Pendente',
+    DIALING: 'Discando',
+    DONE: 'Concluído',
+    NO_ANSWER: 'Não atendeu',
+    CALLBACK: 'Retorno',
+    DNC: 'Não ligar',
+  }
+  return labels[status] ?? status
 }
 
 function CountdownBadge({ seconds, total }: { seconds: number; total: number }) {
