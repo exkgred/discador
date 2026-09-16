@@ -26,6 +26,10 @@ export class CreateLeadUseCase {
     phone: string;
     tags?: string[];
     notes?: string | null;
+    company?: string;
+    city?: string;
+    segment?: string;
+    activity?: string;
   }): Promise<Lead> {
     const phone = normalizePhone(input.phone);
     const existing = await this.leads.findByPhone(phone);
@@ -39,6 +43,10 @@ export class CreateLeadUseCase {
       tags: input.tags ?? [],
       notes: input.notes ?? null,
       dncBlocked: blocked,
+      company: input.company ?? '',
+      city: input.city ?? '',
+      segment: input.segment ?? '',
+      activity: input.activity ?? '',
     });
   }
 }
@@ -56,6 +64,10 @@ export class UpdateLeadUseCase {
     phone?: string;
     tags?: string[];
     notes?: string | null;
+    company?: string;
+    city?: string;
+    segment?: string;
+    activity?: string;
   }): Promise<Lead> {
     const current = await this.leads.findById(input.id);
     if (!current) {
@@ -75,6 +87,10 @@ export class UpdateLeadUseCase {
       phone,
       tags: input.tags,
       notes: input.notes,
+      company: input.company,
+      city: input.city,
+      segment: input.segment,
+      activity: input.activity,
       dncBlocked: blocked,
     });
   }
@@ -86,11 +102,19 @@ export class ListLeadsUseCase {
     @Inject(LEAD_REPOSITORY) private readonly leads: LeadRepository,
   ) {}
 
-  async execute(input: { search?: string; page?: number; perPage?: number }) {
+  async execute(input: {
+    search?: string;
+    segment?: string;
+    activity?: string;
+    page?: number;
+    perPage?: number;
+  }) {
     const page = input.page && input.page > 0 ? input.page : 1;
     const perPage = input.perPage && input.perPage > 0 ? input.perPage : 20;
     const result = await this.leads.list({
       search: input.search,
+      segment: input.segment,
+      activity: input.activity,
       page,
       perPage,
     });
@@ -139,7 +163,12 @@ export class ImportLeadsCsvUseCase {
       const cols = parseCsvRow(row);
       const name = cols[0]?.trim();
       const phoneRaw = cols[1]?.trim();
-      const tags = (cols[2] ?? '')
+      const extended = cols.length >= 6;
+      const company = extended ? (cols[2] ?? '').trim() : '';
+      const city = extended ? (cols[3] ?? '').trim() : '';
+      const segment = extended ? (cols[4] ?? '').trim() : '';
+      const activity = extended ? (cols[5] ?? '').trim() : '';
+      const tags = (extended ? (cols[6] ?? '') : (cols[2] ?? ''))
         .split(';')
         .map((tag) => tag.trim())
         .filter(Boolean);
@@ -155,7 +184,16 @@ export class ImportLeadsCsvUseCase {
           continue;
         }
         const blocked = await this.dnc.isBlocked(phone);
-        await this.leads.create({ name, phone, tags, dncBlocked: blocked });
+        await this.leads.create({
+          name,
+          phone,
+          tags,
+          dncBlocked: blocked,
+          company,
+          city,
+          segment,
+          activity,
+        });
         created += 1;
       } catch {
         skipped += 1;

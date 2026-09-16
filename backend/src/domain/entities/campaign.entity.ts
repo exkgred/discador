@@ -18,6 +18,7 @@ export interface Campaign {
   windowStart: string;
   windowEnd: string;
   timeZone: string;
+  segment?: string | null;
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -36,6 +37,10 @@ export interface CampaignLead {
     id: string;
     name: string;
     phone: string;
+    company?: string;
+    city?: string;
+    segment?: string;
+    activity?: string;
     tags: string[];
     dncBlocked: boolean;
   };

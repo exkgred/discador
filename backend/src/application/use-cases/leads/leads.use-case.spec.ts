@@ -101,9 +101,18 @@ describe('CreateLeadUseCase', () => {
     const created = await new CreateLeadUseCase(leads, dnc).execute({
       name: 'Maria',
       phone: '11988880001',
+      company: 'Clínica Vida',
+      city: 'São Paulo',
+      segment: 'saude',
+      activity: 'Clínica',
     });
     expect(leads.create).toHaveBeenCalledWith(
-      expect.objectContaining({ dncBlocked: true, phone: '+5511988880001' }),
+      expect.objectContaining({
+        dncBlocked: true,
+        phone: '+5511988880001',
+        company: 'Clínica Vida',
+        segment: 'saude',
+      }),
     );
     expect(created.dncBlocked).toBe(true);
   });
@@ -160,10 +169,29 @@ describe('ListLeadsUseCase', () => {
     const result = await new ListLeadsUseCase(leads).execute({});
     expect(leads.list).toHaveBeenCalledWith({
       search: undefined,
+      segment: undefined,
+      activity: undefined,
       page: 1,
       perPage: 20,
     });
     expect(result.page).toBe(1);
+  });
+
+  it('encaminha filtro de segmento e atividade', async () => {
+    const leads = {
+      list: jest.fn().mockResolvedValue({ items: [], total: 0 }),
+    } as unknown as jest.Mocked<LeadRepository>;
+    await new ListLeadsUseCase(leads).execute({
+      segment: 'saude',
+      activity: 'Clínica',
+    });
+    expect(leads.list).toHaveBeenCalledWith({
+      search: undefined,
+      segment: 'saude',
+      activity: 'Clínica',
+      page: 1,
+      perPage: 20,
+    });
   });
 });
 
@@ -202,6 +230,10 @@ describe('UpdateLeadUseCase', () => {
     await new UpdateLeadUseCase(leads, dnc).execute({
       id: '1',
       name: 'Maria Silva',
+      company: 'Clínica Vida',
+      segment: 'saude',
+      activity: 'Clínica',
+      city: 'São Paulo',
     });
     expect(leads.update).toHaveBeenCalled();
   });
@@ -245,6 +277,8 @@ describe('ListLeadsUseCase extras', () => {
     });
     expect(leads.list).toHaveBeenCalledWith({
       search: 'a',
+      segment: undefined,
+      activity: undefined,
       page: 2,
       perPage: 10,
     });
@@ -276,5 +310,29 @@ describe('ImportLeadsCsvUseCase extras', () => {
       'SóNome\n"Ana, Silva",abc\nBeatriz,11988880003',
     );
     expect(result.skipped).toBeGreaterThan(0);
+  });
+
+  it('CSV estendido importa empresa, cidade, segmento e atividade', async () => {
+    const leads = {
+      findByPhone: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue({}),
+    } as unknown as jest.Mocked<LeadRepository>;
+    const dnc = {
+      isBlocked: jest.fn().mockResolvedValue(false),
+    } as unknown as jest.Mocked<DncRepository>;
+    const useCase = new ImportLeadsCsvUseCase(leads, dnc);
+    const result = await useCase.execute(
+      'name,phone,company,city,segment,activity,tags\nMaria,11988880001,Clínica Vida,São Paulo,saude,Clínica,vip',
+    );
+    expect(result).toEqual({ created: 1, skipped: 0 });
+    expect(leads.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        company: 'Clínica Vida',
+        city: 'São Paulo',
+        segment: 'saude',
+        activity: 'Clínica',
+        tags: ['vip'],
+      }),
+    );
   });
 });

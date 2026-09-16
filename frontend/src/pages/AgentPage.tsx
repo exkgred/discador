@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { io, type Socket } from 'socket.io-client'
 import { PhoneCall, PhoneOff, Volume2, VolumeX } from 'lucide-react'
 import { api, unwrap } from '@/lib/api'
+import { segmentLabel } from '@/lib/segments'
 import {
   isCallAudioMuted,
   playHangup,
@@ -366,6 +367,9 @@ export default function AgentPage() {
               </div>
               <div>
                 <p className="text-lg font-semibold text-ink-300">{lead.name}</p>
+                <p className="text-sm text-ink-500">
+                  {[lead.company, segmentLabel(lead.segment), lead.activity].filter(Boolean).join(' · ')}
+                </p>
                 <p className="font-mono text-sm text-ink-500">{lead.phone}</p>
               </div>
             </div>
@@ -391,6 +395,9 @@ export default function AgentPage() {
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-ink-500">Próximo lead</p>
             <p className="font-semibold text-ink-300">{nextLead.name}</p>
+            <p className="text-sm text-ink-500">
+              {[nextLead.company, segmentLabel(nextLead.segment), nextLead.city].filter(Boolean).join(' · ')}
+            </p>
             <p className="font-mono text-sm text-ink-500">{nextLead.phone}</p>
           </div>
           <button
@@ -420,10 +427,12 @@ export default function AgentPage() {
           </select>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[32rem] text-left text-sm">
+          <table className="w-full min-w-[44rem] text-left text-sm">
             <thead className="bg-white/5 text-ink-500">
               <tr>
                 <th className="px-4 py-3 font-medium">Lead</th>
+                <th className="px-4 py-3 font-medium">Empresa</th>
+                <th className="px-4 py-3 font-medium">Segmento</th>
                 <th className="px-4 py-3 font-medium">Telefone</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium text-right">Ação</th>
@@ -433,6 +442,8 @@ export default function AgentPage() {
               {queue.map((item) => (
                 <tr key={item.id} className="border-t border-white/10">
                   <td className="px-4 py-3 font-medium text-ink-300">{item.lead?.name}</td>
+                  <td className="px-4 py-3 text-ink-500">{item.lead?.company ?? '—'}</td>
+                  <td className="px-4 py-3 text-ink-500">{segmentLabel(item.lead?.segment)}</td>
                   <td className="px-4 py-3 font-mono text-ink-500">{item.lead?.phone}</td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${queueBadge(item.status)}`}>
@@ -454,7 +465,7 @@ export default function AgentPage() {
               ))}
               {queue.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-ink-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-ink-500">
                     Nenhum lead na fila desta campanha.
                   </td>
                 </tr>

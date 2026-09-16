@@ -61,7 +61,7 @@ export class LeadsController {
 
   @Post('leads/import')
   @Roles('ADMIN', 'SUPERVISOR')
-  @ApiOperation({ summary: 'Importar CSV name,phone,tags' })
+  @ApiOperation({ summary: 'Importar CSV name,phone,company,city,segment,activity,tags' })
   import(@Body() dto: ImportCsvDto) {
     return this.importCsv.execute(dto.csv);
   }

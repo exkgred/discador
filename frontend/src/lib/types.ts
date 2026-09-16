@@ -10,6 +10,10 @@ export interface Lead {
   id: string
   name: string
   phone: string
+  company: string
+  city: string
+  segment: string
+  activity: string
   tags: string[]
   dncBlocked: boolean
   notes: string | null
@@ -18,6 +22,7 @@ export interface Lead {
 export interface Campaign {
   id: string
   name: string
+  segment: string | null
   script: string
   dialMode: 'MANUAL' | 'POWER'
   gravarAudio: boolean

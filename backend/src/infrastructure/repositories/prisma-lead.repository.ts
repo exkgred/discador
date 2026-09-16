@@ -16,6 +16,10 @@ export class PrismaLeadRepository implements LeadRepository {
     tags: string[];
     notes?: string | null;
     dncBlocked?: boolean;
+    company?: string;
+    city?: string;
+    segment?: string;
+    activity?: string;
   }): Promise<Lead> {
     return this.prisma.lead.create({
       data: {
@@ -24,6 +28,10 @@ export class PrismaLeadRepository implements LeadRepository {
         tags: data.tags,
         notes: data.notes ?? null,
         dncBlocked: data.dncBlocked ?? false,
+        company: data.company ?? '',
+        city: data.city ?? '',
+        segment: data.segment ?? '',
+        activity: data.activity ?? '',
       },
     });
   }
@@ -31,7 +39,18 @@ export class PrismaLeadRepository implements LeadRepository {
   async update(
     id: string,
     data: Partial<
-      Pick<Lead, 'name' | 'phone' | 'tags' | 'notes' | 'dncBlocked'>
+      Pick<
+        Lead,
+        | 'name'
+        | 'phone'
+        | 'tags'
+        | 'notes'
+        | 'dncBlocked'
+        | 'company'
+        | 'city'
+        | 'segment'
+        | 'activity'
+      >
     >,
   ): Promise<Lead> {
     return this.prisma.lead.update({ where: { id }, data });
@@ -48,16 +67,22 @@ export class PrismaLeadRepository implements LeadRepository {
   async list(
     filters: ListLeadsFilters,
   ): Promise<{ items: Lead[]; total: number }> {
-    const where = filters.search
-      ? {
-          OR: [
-            {
-              name: { contains: filters.search, mode: 'insensitive' as const },
-            },
-            { phone: { contains: filters.search } },
-          ],
-        }
-      : {};
+    const where = {
+      ...(filters.segment ? { segment: filters.segment } : {}),
+      ...(filters.activity ? { activity: filters.activity } : {}),
+      ...(filters.search
+        ? {
+            OR: [
+              {
+                name: { contains: filters.search, mode: 'insensitive' as const },
+              },
+              { phone: { contains: filters.search } },
+              { company: { contains: filters.search, mode: 'insensitive' as const } },
+              { city: { contains: filters.search, mode: 'insensitive' as const } },
+            ],
+          }
+        : {}),
+    };
     const [items, total] = await this.prisma.$transaction([
       this.prisma.lead.findMany({
         where,

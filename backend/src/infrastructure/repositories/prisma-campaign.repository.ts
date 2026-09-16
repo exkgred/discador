@@ -20,6 +20,7 @@ export class PrismaCampaignRepository implements CampaignRepository {
     windowStart: string;
     windowEnd: string;
     timeZone: string;
+    segment?: string | null;
   }): Promise<Campaign> {
     return this.prisma.campaign.create({ data });
   }
@@ -37,6 +38,7 @@ export class PrismaCampaignRepository implements CampaignRepository {
         | 'windowEnd'
         | 'timeZone'
         | 'active'
+        | 'segment'
       >
     >,
   ): Promise<Campaign> {

@@ -33,6 +33,26 @@ export class CreateLeadDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  company?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  segment?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  activity?: string;
 }
 
 export class UpdateLeadDto {
@@ -56,10 +76,30 @@ export class UpdateLeadDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  company?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  segment?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  activity?: string;
 }
 
 export class ImportCsvDto {
-  @ApiProperty({ description: 'CSV: name,phone,tags' })
+  @ApiProperty({ description: 'CSV: name,phone,company,city,segment,activity,tags' })
   @IsString()
   csv!: string;
 }
@@ -83,6 +123,16 @@ export class PaginationQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  segment?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  activity?: string;
 }
 
 export class CreateCampaignDto {
@@ -119,6 +169,11 @@ export class CreateCampaignDto {
   @IsOptional()
   @IsString()
   timeZone?: string;
+
+  @ApiPropertyOptional({ description: 'Vertical / lista (saúde, educação, …)' })
+  @IsOptional()
+  @IsString()
+  segment?: string;
 }
 
 export class UpdateCampaignDto {
@@ -161,6 +216,11 @@ export class UpdateCampaignDto {
   @IsOptional()
   @IsBoolean()
   active?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  segment?: string;
 }
 
 export class EnqueueLeadsDto {

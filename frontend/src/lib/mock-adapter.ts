@@ -1,7 +1,8 @@
 import type { AxiosAdapter, InternalAxiosRequestConfig } from 'axios'
 import type { Call, Campaign, CampaignLead, Lead, PublicUser } from './types'
+import { DEMO_CAMPAIGNS, DEMO_LEADS, DEMO_PRELOAD_CAMPAIGN_IDS } from './demo-catalog'
 
-const STORAGE_KEY = 'discador-demo-state'
+const STORAGE_KEY = 'discador-demo-state-v2'
 
 interface DemoUser extends PublicUser {
   password: string
@@ -18,41 +19,42 @@ interface DemoState {
 
 const nowIso = () => new Date().toISOString()
 
+function hydrateLead(lead: Lead): Lead {
+  return {
+    ...lead,
+    company: lead.company ?? '',
+    city: lead.city ?? '',
+    segment: lead.segment ?? '',
+    activity: lead.activity ?? '',
+    tags: lead.tags ?? [],
+    dncBlocked: lead.dncBlocked ?? false,
+    notes: lead.notes ?? null,
+  }
+}
+
 function uid(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`
 }
 
 function seed(): DemoState {
-  const leads: Lead[] = [
-    { id: 'lead-1', name: 'Maria Silva', phone: '+5511988880001', tags: ['vip'], dncBlocked: false, notes: null },
-    { id: 'lead-2', name: 'João Souza', phone: '+5511988880002', tags: ['novo'], dncBlocked: false, notes: null },
-    { id: 'lead-3', name: 'Ana Costa', phone: '+5511988880003', tags: [], dncBlocked: false, notes: null },
-    { id: 'lead-4', name: 'Pedro Lima', phone: '+5511988880004', tags: ['retorno'], dncBlocked: false, notes: null },
-    { id: 'lead-dnc', name: 'Bloqueado DNC', phone: '+5511900000000', tags: ['dnc'], dncBlocked: true, notes: 'Lista Não Me Perturbe' },
-  ]
-  const campaign: Campaign = {
-    id: 'camp-piloto',
-    name: 'Campanha piloto',
-    script:
-      'Olá, aqui é da equipe comercial. Esta ligação pode ser gravada. Temos uma condição especial hoje — posso falar um minuto?',
-    dialMode: 'POWER',
-    gravarAudio: true,
-    windowStart: '00:00',
-    windowEnd: '23:59',
-    timeZone: 'America/Sao_Paulo',
-    active: true,
+  const leads = DEMO_LEADS.map((item) => ({ ...item }))
+  const campaigns = DEMO_CAMPAIGNS.map((item) => ({ ...item }))
+  const queue: CampaignLead[] = []
+  for (const campaign of campaigns) {
+    if (!(DEMO_PRELOAD_CAMPAIGN_IDS as readonly string[]).includes(campaign.id)) continue
+    const members = leads.filter((lead) => lead.segment === campaign.segment && !lead.dncBlocked)
+    members.forEach((lead, position) => {
+      queue.push({
+        id: `cl-${campaign.id}-${lead.id}`,
+        campaignId: campaign.id,
+        leadId: lead.id,
+        position,
+        status: 'PENDING',
+        agentId: null,
+        lead,
+      })
+    })
   }
-  const queue: CampaignLead[] = leads
-    .filter((lead) => !lead.dncBlocked)
-    .map((lead, position) => ({
-      id: `cl-${lead.id}`,
-      campaignId: campaign.id,
-      leadId: lead.id,
-      position,
-      status: 'PENDING',
-      agentId: null,
-      lead,
-    }))
   return {
     users: [
       { id: 'u-admin', name: 'Admin Discador', email: 'admin@discador.dev', role: 'ADMIN', ramalId: '1000', password: 'password123' },
@@ -60,7 +62,7 @@ function seed(): DemoState {
       { id: 'u-agent', name: 'Agente Demo', email: 'agent@discador.dev', role: 'AGENT', ramalId: '1002', password: 'password123' },
     ],
     leads,
-    campaigns: [campaign],
+    campaigns,
     queue,
     calls: [],
     currentUserId: null,
@@ -72,9 +74,14 @@ function load(): DemoState {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as DemoState
-      parsed.queue = parsed.queue.map((item) => ({
-        ...item,
-        lead: item.lead ?? parsed.leads.find((lead) => lead.id === item.leadId),
+      parsed.queue = parsed.queue.map((item) => {
+        const raw = item.lead ?? parsed.leads.find((lead) => lead.id === item.leadId)
+        return { ...item, lead: raw ? hydrateLead(raw) : undefined }
+      })
+      parsed.leads = parsed.leads.map(hydrateLead)
+      parsed.campaigns = parsed.campaigns.map((campaign) => ({
+        ...campaign,
+        segment: campaign.segment ?? null,
       }))
       return parsed
     }
@@ -173,6 +180,7 @@ function handle(config: InternalAxiosRequestConfig): ReturnType<typeof ok> {
     const campaign: Campaign = {
       id: uid('camp'),
       name: String(body.name || 'Nova campanha'),
+      segment: body.segment ? String(body.segment) : null,
       script: String(body.script || ''),
       dialMode: body.dialMode === 'MANUAL' ? 'MANUAL' : 'POWER',
       gravarAudio: body.gravarAudio !== false,
@@ -193,6 +201,7 @@ function handle(config: InternalAxiosRequestConfig): ReturnType<typeof ok> {
   if (queueMatch && method === 'POST') {
     const ids = (body.leadIds as string[]) ?? []
     let position = state.queue.length
+    let added = 0
     for (const leadId of ids) {
       if (state.queue.some((item) => item.leadId === leadId && item.campaignId === queueMatch[1])) {
         continue
@@ -209,19 +218,24 @@ function handle(config: InternalAxiosRequestConfig): ReturnType<typeof ok> {
         lead,
       })
       position += 1
+      added += 1
     }
     save(state)
-    return ok({ added: ids.length })
+    return ok({ added })
   }
 
   if (path === '/leads' && method === 'GET') {
-    return ok(state.leads, { page: 1, perPage: 50, total: state.leads.length })
+    return ok(state.leads, { page: 1, perPage: state.leads.length, total: state.leads.length })
   }
   if (path === '/leads' && method === 'POST') {
     const lead: Lead = {
       id: uid('lead'),
       name: String(body.name),
       phone: String(body.phone),
+      company: String(body.company || ''),
+      city: String(body.city || ''),
+      segment: String(body.segment || ''),
+      activity: String(body.activity || ''),
       tags: Array.isArray(body.tags) ? (body.tags as string[]) : [],
       dncBlocked: false,
       notes: body.notes ? String(body.notes) : null,
@@ -235,12 +249,16 @@ function handle(config: InternalAxiosRequestConfig): ReturnType<typeof ok> {
     const rows = csv.split(/\r?\n/).slice(1).filter(Boolean)
     let created = 0
     for (const row of rows) {
-      const [name, phone, tags] = row.split(',')
+      const [name, phone, company, city, segment, activity, tags] = row.split(',')
       if (!name || !phone) continue
       state.leads.unshift({
         id: uid('lead'),
         name: name.trim(),
         phone: phone.trim(),
+        company: (company ?? '').trim(),
+        city: (city ?? '').trim(),
+        segment: (segment ?? '').trim(),
+        activity: (activity ?? '').trim(),
         tags: tags ? tags.split(';').map((tag) => tag.trim()).filter(Boolean) : [],
         dncBlocked: false,
         notes: null,

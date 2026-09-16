@@ -16,6 +16,7 @@ export interface CampaignRepository {
     windowStart: string;
     windowEnd: string;
     timeZone: string;
+    segment?: string | null;
   }): Promise<Campaign>;
   update(
     id: string,
@@ -30,6 +31,7 @@ export interface CampaignRepository {
         | 'windowEnd'
         | 'timeZone'
         | 'active'
+        | 'segment'
       >
     >,
   ): Promise<Campaign>;

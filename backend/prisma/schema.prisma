@@ -79,6 +79,10 @@ model Lead {
   id           String          @id @default(uuid())
   name         String
   phone        String
+  company      String          @default("")
+  city         String          @default("")
+  segment      String          @default("")
+  activity     String          @default("")
   tags         String[]        @default([])
   dncBlocked   Boolean         @default(false)
   notes        String?
@@ -90,6 +94,7 @@ model Lead {
 
   @@unique([phone])
   @@index([phone])
+  @@index([segment])
 }
 
 model Campaign {
@@ -101,6 +106,7 @@ model Campaign {
   windowStart String          @default("08:00")
   windowEnd   String          @default("18:00")
   timeZone    String          @default("America/Sao_Paulo")
+  segment     String?
   active      Boolean         @default(true)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt

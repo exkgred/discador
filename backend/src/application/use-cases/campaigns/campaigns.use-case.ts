@@ -27,6 +27,7 @@ export class CreateCampaignUseCase {
     windowStart?: string;
     windowEnd?: string;
     timeZone?: string;
+    segment?: string | null;
   }): Promise<Campaign> {
     return this.campaigns.create({
       name: input.name,
@@ -36,6 +37,7 @@ export class CreateCampaignUseCase {
       windowStart: input.windowStart ?? '08:00',
       windowEnd: input.windowEnd ?? '18:00',
       timeZone: input.timeZone ?? 'America/Sao_Paulo',
+      segment: input.segment ?? null,
     });
   }
 }
@@ -59,6 +61,7 @@ export class UpdateCampaignUseCase {
         | 'windowEnd'
         | 'timeZone'
         | 'active'
+        | 'segment'
       >
     >,
   ): Promise<Campaign> {

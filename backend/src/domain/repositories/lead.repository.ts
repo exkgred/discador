@@ -4,6 +4,8 @@ export const LEAD_REPOSITORY = Symbol('LEAD_REPOSITORY');
 
 export interface ListLeadsFilters {
   search?: string;
+  segment?: string;
+  activity?: string;
   page: number;
   perPage: number;
 }
@@ -15,11 +17,26 @@ export interface LeadRepository {
     tags: string[];
     notes?: string | null;
     dncBlocked?: boolean;
+    company?: string;
+    city?: string;
+    segment?: string;
+    activity?: string;
   }): Promise<Lead>;
   update(
     id: string,
     data: Partial<
-      Pick<Lead, 'name' | 'phone' | 'tags' | 'notes' | 'dncBlocked'>
+      Pick<
+        Lead,
+        | 'name'
+        | 'phone'
+        | 'tags'
+        | 'notes'
+        | 'dncBlocked'
+        | 'company'
+        | 'city'
+        | 'segment'
+        | 'activity'
+      >
     >,
   ): Promise<Lead>;
   findById(id: string): Promise<Lead | null>;
