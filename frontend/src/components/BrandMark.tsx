@@ -7,16 +7,23 @@ interface BrandMarkProps {
 export function BrandMark({ size = 32, className, wordmark = true }: BrandMarkProps) {
   return (
     <span className={['inline-flex items-center gap-2 font-semibold tracking-tight', className].filter(Boolean).join(' ')}>
-      <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="#12161f" />
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        aria-hidden="true"
+        className="shrink-0"
+        style={{ width: size, height: size }}
+      >
+        <rect width="32" height="32" rx="8" fill="#4f8ef7" />
         <path
           d="M11.2 8.8c.9-.4 1.9.1 2.2 1l.8 2.2c.3.8 0 1.6-.7 2L12 15.2c.8 2.1 2.5 3.9 4.7 4.8l1.3-1.5c.5-.6 1.3-.8 2.1-.5l2.2.8c.9.3 1.4 1.3 1.1 2.2l-.5 1.4c-.4 1.1-1.5 1.8-2.7 1.7-5.7-.6-10.3-5.3-10.8-11-.1-1.2.6-2.3 1.8-2.8Z"
-          fill="#4f8ef7"
+          fill="white"
         />
         <path
           d="M20.2 9.2c1.6 1.4 2.6 3.4 2.6 5.6M22.8 7.4C25.4 9.6 27 12.9 27 16.6"
           fill="none"
-          stroke="#93b8ff"
+          stroke="#dbeafe"
           strokeWidth="1.6"
           strokeLinecap="round"
         />
