@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Phone } from 'lucide-react'
+import { BrandMark } from '@/components/BrandMark'
 import { api, unwrap } from '@/lib/api'
 import type { Envelope, PublicUser } from '@/lib/types'
 import { useAuthStore } from '@/stores/auth'
@@ -34,8 +34,8 @@ export default function LoginPage() {
         className="w-full max-w-sm space-y-4 rounded-xl border border-white/10 bg-ink-900/80 p-8 shadow-glow backdrop-blur"
       >
         <div className="text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-white">
-            <Phone size={22} />
+          <div className="mb-3 flex justify-center">
+            <BrandMark size={40} />
           </div>
           <h1 className="text-2xl font-bold text-ink-300">Discador Zenvia</h1>
           <p className="text-sm text-ink-500">Agente disca. Supervisor acompanha a equipe.</p>

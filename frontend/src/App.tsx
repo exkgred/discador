@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, NavLink, useNavigate } from 'react-router-dom'
-import { Headset, History, LayoutDashboard, LogOut, Megaphone, Phone, Users } from 'lucide-react'
+import { Headset, History, LayoutDashboard, LogOut, Megaphone, Users } from 'lucide-react'
+import { BrandMark } from '@/components/BrandMark'
 import { useAuthStore } from '@/stores/auth'
 import LoginPage from '@/pages/LoginPage'
 import AgentPage from '@/pages/AgentPage'
@@ -27,11 +28,8 @@ function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh bg-[radial-gradient(circle_at_top,_rgba(79,142,247,0.16),_transparent_42%),#0b0e14] pb-[4.5rem] md:pb-0">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-950/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <NavLink to="/" className="flex shrink-0 items-center gap-2 font-semibold text-ink-300">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white">
-              <Phone size={16} />
-            </span>
-            <span>Discador</span>
+          <NavLink to="/" className="flex shrink-0 items-center text-ink-300">
+            <BrandMark size={32} />
           </NavLink>
           <nav className="hidden items-center gap-1 text-sm text-ink-500 md:flex">
             {NAV.map((item) => (
