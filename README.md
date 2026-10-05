@@ -45,8 +45,8 @@ npm run dev
 O frontend sobe sozinho, sem Nest, Postgres, Redis ou Zenvia. Com `VITE_DEMO=true` o Axios usa um adapter no navegador (leads, campanhas, fila, discagem simulada e wrap-up no `localStorage`).
 
 1. No [Vercel](https://vercel.com/new) importe `exkgred/discador`
-2. **Root Directory:** `frontend` (Settings → General). Não deixe Override no Install Command.
-3. Framework: Vite · o build gera `dist`
+2. Preset **Services**: deixe só o serviço `frontend` (Vite, pasta `frontend/`)
+3. Se a tela pedir `vercel.json`, use o da raiz (já declara só o frontend)
 4. Variável: `VITE_DEMO=true` (já vem em `frontend/.env.production`)
 
 Login da demo: `agent@discador.dev` / `password123` (já vem preenchido).
